@@ -1,13 +1,13 @@
 package com.knoldus.aws.routes.s3
 
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.server.Directives.{entity, _}
+import akka.http.scaladsl.server.Directives.{ entity, _ }
 import akka.http.scaladsl.server.directives.FileInfo
-import akka.http.scaladsl.server.{ExceptionHandler, Route}
+import akka.http.scaladsl.server.{ ExceptionHandler, Route }
 import com.knoldus.aws.bootstrap.DriverApp.actorSystem
 import com.knoldus.aws.models.s3._
-import com.knoldus.aws.services.s3.{DataMigrationServiceImpl, S3BucketServiceImpl}
-import com.knoldus.aws.utils.Constants.{BUCKET_NOT_FOUND, CANNOT_COPY_OBJECT, OBJECT_UPLOADED}
+import com.knoldus.aws.services.s3.{ DataMigrationServiceImpl, S3BucketServiceImpl }
+import com.knoldus.aws.utils.Constants.{ BUCKET_NOT_FOUND, CANNOT_COPY_OBJECT, OBJECT_UPLOADED }
 import com.knoldus.aws.utils.JsonSupport
 import com.typesafe.scalalogging.LazyLogging
 import spray.json.enrichAny

@@ -319,7 +319,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
                       )
                     case Right(messages) =>
                       val messageResponse = messages.map { message =>
-                        MessageResponse(message.id, message.body)
+                        MessageResponse(message.id, message.body, message.receiptHandle)
                       }
                       complete(
                         HttpResponse(

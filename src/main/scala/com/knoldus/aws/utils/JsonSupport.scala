@@ -32,7 +32,7 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
     ReceiveMessageRequest.apply
   )
 
-  implicit val MessageResponseFormat: RootJsonFormat[MessageResponse] = jsonFormat2(MessageResponse.apply)
+  implicit val MessageResponseFormat: RootJsonFormat[MessageResponse] = jsonFormat3(MessageResponse.apply)
 
   implicit val SendMessagesToStandardRequestFormat: RootJsonFormat[SendMessagesToStandardRequest] = jsonFormat3(
     SendMessagesToStandardRequest.apply
