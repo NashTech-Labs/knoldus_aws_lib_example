@@ -2,7 +2,7 @@ package com.knoldus.aws.models.sqs
 
 import play.api.libs.json.{ Format, JsSuccess, JsValue, Json }
 
-case class MessageResponse(messageId: String, messageBody: String)
+case class MessageResponse(messageId: String, messageBody: String, receiptHandle: String)
 
 object MessageResponse {
 
