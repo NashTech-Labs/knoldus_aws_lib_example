@@ -115,40 +115,38 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
       pathEnd {
         (post & entity(as[SendMessageToFifoRequest])) { sendMessageToFifoRequest =>
           logger.info("Making request for sending a message to fifo queue")
-          parameter("messageAttributes".as[Map[String, String]].optional, "waitForSeconds".as[Int].optional) {
-            (messageAttributes, delaySeconds) =>
-              messagingServiceImpl.searchQueueByName(sendMessageToFifoRequest.queueName) match {
-                case None =>
+          messagingServiceImpl.searchQueueByName(sendMessageToFifoRequest.queueName) match {
+            case None =>
+              complete(
+                HttpResponse(
+                  StatusCodes.NotFound,
+                  entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
+                )
+              )
+            case Some(queue) =>
+              messagingServiceImpl.sendMessageToQueue(
+                queue,
+                sendMessageToFifoRequest.messageBody,
+                Some(sendMessageToFifoRequest.messageGroupId),
+                sendMessageToFifoRequest.messageAttributes,
+                sendMessageToFifoRequest.delaySeconds
+              ) match {
+                case Left(ex) =>
                   complete(
                     HttpResponse(
-                      StatusCodes.NotFound,
-                      entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
+                      StatusCodes.InternalServerError,
+                      entity = HttpEntity(ContentTypes.`application/json`, s"Exception ${ex.getMessage}")
                     )
                   )
-                case Some(queue) =>
-                  messagingServiceImpl.sendMessageToQueue(
-                    queue,
-                    sendMessageToFifoRequest.messageBody,
-                    Some(sendMessageToFifoRequest.messageGroupId),
-                    messageAttributes,
-                    delaySeconds
-                  ) match {
-                    case Left(ex) =>
-                      complete(
-                        HttpResponse(
-                          StatusCodes.InternalServerError,
-                          entity = HttpEntity(ContentTypes.`application/json`, s"Exception ${ex.getMessage}")
-                        )
-                      )
-                    case Right(msg) =>
-                      complete(
-                        HttpResponse(
-                          StatusCodes.OK,
-                          entity = HttpEntity(ContentTypes.`application/json`, msg)
-                        )
-                      )
-                  }
+                case Right(msg) =>
+                  complete(
+                    HttpResponse(
+                      StatusCodes.OK,
+                      entity = HttpEntity(ContentTypes.`application/json`, msg)
+                    )
+                  )
               }
+
           }
         }
       }
@@ -159,42 +157,40 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
       pathEnd {
         (post & entity(as[SendMessageToStandardRequest])) { sendMessageToStandardRequest =>
           logger.info("Making request for sending a message to standard queue.")
-          parameter("messageAttributes".as[Map[String, String]].optional, "waitForSeconds".as[Int].optional) {
-            (messageAttributes, delaySeconds) =>
-              messagingServiceImpl.searchQueueByName(sendMessageToStandardRequest.queueName) match {
-                case None =>
+          messagingServiceImpl.searchQueueByName(sendMessageToStandardRequest.queueName) match {
+            case None =>
+              complete(
+                HttpResponse(
+                  StatusCodes.NotFound,
+                  entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
+                )
+              )
+            case Some(queue) =>
+              messagingServiceImpl.sendMessageToQueue(
+                queue,
+                sendMessageToStandardRequest.messageBody,
+                None,
+                sendMessageToStandardRequest.messageAttributes,
+                sendMessageToStandardRequest.delaySeconds
+              ) match {
+                case Left(ex) =>
                   complete(
                     HttpResponse(
-                      StatusCodes.NotFound,
-                      entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
+                      StatusCodes.InternalServerError,
+                      entity = HttpEntity(ContentTypes.`application/json`, s"Exception ${ex.getMessage}")
                     )
                   )
-                case Some(queue) =>
-                  messagingServiceImpl.sendMessageToQueue(
-                    queue,
-                    sendMessageToStandardRequest.messageBody,
-                    None,
-                    messageAttributes,
-                    delaySeconds
-                  ) match {
-                    case Left(ex) =>
-                      complete(
-                        HttpResponse(
-                          StatusCodes.InternalServerError,
-                          entity = HttpEntity(ContentTypes.`application/json`, s"Exception ${ex.getMessage}")
-                        )
-                      )
-                    case Right(msg) =>
-                      complete(
-                        HttpResponse(
-                          StatusCodes.OK,
-                          entity = HttpEntity(ContentTypes.`application/json`, msg)
-                        )
-                      )
-                  }
+                case Right(msg) =>
+                  complete(
+                    HttpResponse(
+                      StatusCodes.OK,
+                      entity = HttpEntity(ContentTypes.`application/json`, msg)
+                    )
+                  )
               }
           }
         }
+
       }
     }
 
@@ -203,41 +199,39 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
       pathEnd {
         (post & entity(as[SendMessagesToFifoRequest])) { sendMessagesToFifoRequest =>
           logger.info("Making request for sending multiple messages to fifo queue.")
-          parameter("messageAttributes".as[Map[String, String]].optional, "waitForSeconds".as[Int].optional) {
-            (messageAttributes, delaySeconds) =>
-              messagingServiceImpl.searchQueueByName(sendMessagesToFifoRequest.queueName) match {
-                case None =>
+          messagingServiceImpl.searchQueueByName(sendMessagesToFifoRequest.queueName) match {
+            case None =>
+              complete(
+                HttpResponse(
+                  StatusCodes.NotFound,
+                  entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
+                )
+              )
+            case Some(queue) =>
+              messagingServiceImpl.sendMultipleMessagesToQueue(
+                queue,
+                sendMessagesToFifoRequest.messageBodies,
+                Some(sendMessagesToFifoRequest.messageGroupId),
+                sendMessagesToFifoRequest.messageAttributes,
+                sendMessagesToFifoRequest.delaySeconds
+              ) match {
+                case Left(ex) =>
                   complete(
                     HttpResponse(
-                      StatusCodes.NotFound,
-                      entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
+                      StatusCodes.InternalServerError,
+                      entity = HttpEntity(ContentTypes.`application/json`, s"Exception ${ex.getMessage}")
                     )
                   )
-                case Some(queue) =>
-                  messagingServiceImpl.sendMultipleMessagesToQueue(
-                    queue,
-                    sendMessagesToFifoRequest.messageBodies,
-                    Some(sendMessagesToFifoRequest.messageGroupId),
-                    messageAttributes,
-                    delaySeconds
-                  ) match {
-                    case Left(ex) =>
-                      complete(
-                        HttpResponse(
-                          StatusCodes.InternalServerError,
-                          entity = HttpEntity(ContentTypes.`application/json`, s"Exception ${ex.getMessage}")
-                        )
-                      )
-                    case Right(msg) =>
-                      complete(
-                        HttpResponse(
-                          StatusCodes.OK,
-                          entity = HttpEntity(ContentTypes.`application/json`, msg)
-                        )
-                      )
-                  }
+                case Right(msg) =>
+                  complete(
+                    HttpResponse(
+                      StatusCodes.OK,
+                      entity = HttpEntity(ContentTypes.`application/json`, msg)
+                    )
+                  )
               }
           }
+
         }
       }
     }
@@ -247,39 +241,36 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
       pathEnd {
         (post & entity(as[SendMessagesToStandardRequest])) { sendMessagesToStandardRequest =>
           logger.info("Making request for sending multiple messages to standard queue.")
-          parameter("messageAttributes".as[Map[String, String]].optional, "waitForSeconds".as[Int].optional) {
-            (messageAttributes, delaySeconds) =>
-              messagingServiceImpl.searchQueueByName(sendMessagesToStandardRequest.queueName) match {
-                case None =>
+          messagingServiceImpl.searchQueueByName(sendMessagesToStandardRequest.queueName) match {
+            case None =>
+              complete(
+                HttpResponse(
+                  StatusCodes.NotFound,
+                  entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
+                )
+              )
+            case Some(queue) =>
+              messagingServiceImpl.sendMultipleMessagesToQueue(
+                queue,
+                sendMessagesToStandardRequest.messageBodies,
+                None,
+                sendMessagesToStandardRequest.messageAttributes,
+                sendMessagesToStandardRequest.delaySeconds
+              ) match {
+                case Left(ex) =>
                   complete(
                     HttpResponse(
-                      StatusCodes.NotFound,
-                      entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
+                      StatusCodes.InternalServerError,
+                      entity = HttpEntity(ContentTypes.`application/json`, s"Exception ${ex.getMessage}")
                     )
                   )
-                case Some(queue) =>
-                  messagingServiceImpl.sendMultipleMessagesToQueue(
-                    queue,
-                    sendMessagesToStandardRequest.messageBodies,
-                    None,
-                    messageAttributes,
-                    delaySeconds
-                  ) match {
-                    case Left(ex) =>
-                      complete(
-                        HttpResponse(
-                          StatusCodes.InternalServerError,
-                          entity = HttpEntity(ContentTypes.`application/json`, s"Exception ${ex.getMessage}")
-                        )
-                      )
-                    case Right(msg) =>
-                      complete(
-                        HttpResponse(
-                          StatusCodes.OK,
-                          entity = HttpEntity(ContentTypes.`application/json`, msg)
-                        )
-                      )
-                  }
+                case Right(msg) =>
+                  complete(
+                    HttpResponse(
+                      StatusCodes.OK,
+                      entity = HttpEntity(ContentTypes.`application/json`, msg)
+                    )
+                  )
               }
           }
         }
@@ -290,45 +281,43 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
     path("queue" / "receiveMessage") {
       pathEnd {
         (get & entity(as[ReceiveMessageRequest])) { receiveMessageRequest =>
-          parameter("maxNumberOfMessages".as[Int].optional, "waitForSeconds".as[Int].optional) {
-            (maxNumberOfMessages, waitForSeconds) =>
-              logger.info("Making request for receiving messages")
-              messagingServiceImpl.searchQueueByName(receiveMessageRequest.queueName) match {
-                case None =>
+          logger.info("Making request for receiving messages")
+          messagingServiceImpl.searchQueueByName(receiveMessageRequest.queueName) match {
+            case None =>
+              complete(
+                HttpResponse(
+                  StatusCodes.NotFound,
+                  entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
+                )
+              )
+            case Some(queue) =>
+              messagingServiceImpl.receiveMessage(
+                queue,
+                receiveMessageRequest.maxNumberOfMessages.getOrElse(10),
+                receiveMessageRequest.waitForSeconds.getOrElse(0)
+              ) match {
+                case Left(ex) =>
                   complete(
                     HttpResponse(
-                      StatusCodes.NotFound,
-                      entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
+                      StatusCodes.InternalServerError,
+                      entity = HttpEntity(
+                        ContentTypes.`application/json`,
+                        s"Cannot be received message for the specified queue : ${ex.getMessage}"
+                      )
                     )
                   )
-                case Some(queue) =>
-                  messagingServiceImpl.receiveMessage(
-                    queue,
-                    maxNumberOfMessages.getOrElse(10),
-                    waitForSeconds.getOrElse(0)
-                  ) match {
-                    case Left(ex) =>
-                      complete(
-                        HttpResponse(
-                          StatusCodes.InternalServerError,
-                          entity = HttpEntity(
-                            ContentTypes.`application/json`,
-                            s"Cannot be received message for the specified queue : ${ex.getMessage}"
-                          )
-                        )
-                      )
-                    case Right(messages) =>
-                      val messageResponse = messages.map { message =>
-                        MessageResponse(message.id, message.body, message.receiptHandle)
-                      }
-                      complete(
-                        HttpResponse(
-                          StatusCodes.OK,
-                          entity = HttpEntity(ContentTypes.`application/json`, messageResponse.toJson.prettyPrint)
-                        )
-                      )
+                case Right(messages) =>
+                  val messageResponse = messages.map { message =>
+                    MessageResponse(message.id, message.body, message.receiptHandle)
                   }
+                  complete(
+                    HttpResponse(
+                      StatusCodes.OK,
+                      entity = HttpEntity(ContentTypes.`application/json`, messageResponse.toJson.prettyPrint)
+                    )
+                  )
               }
+
           }
         }
       }

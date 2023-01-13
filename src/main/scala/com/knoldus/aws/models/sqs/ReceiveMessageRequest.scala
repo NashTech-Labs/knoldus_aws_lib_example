@@ -2,7 +2,7 @@ package com.knoldus.aws.models.sqs
 
 import play.api.libs.json.{ Format, JsSuccess, JsValue, Json }
 
-case class ReceiveMessageRequest(queueName: String)
+case class ReceiveMessageRequest(queueName: String, maxNumberOfMessages: Option[Int], waitForSeconds: Option[Int])
 
 object ReceiveMessageRequest {
 
