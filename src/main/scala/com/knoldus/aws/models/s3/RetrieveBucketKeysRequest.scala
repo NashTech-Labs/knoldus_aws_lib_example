@@ -11,6 +11,6 @@ object RetrieveBucketKeysRequest {
   def apply(json: JsValue): Either[String, RetrieveBucketKeysRequest] =
     json.validate[RetrieveBucketKeysRequest] match {
       case JsSuccess(user, _) => Right(user)
-      case e => Left(s"Failed to deserialize Question $e")
+      case e => Left(s"Failed to deserialize RetrieveBucketKeysRequest $e")
     }
 }

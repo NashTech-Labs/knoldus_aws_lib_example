@@ -11,6 +11,6 @@ object RetrieveObjectRequest {
   def apply(json: JsValue): Either[String, RetrieveObjectRequest] =
     json.validate[RetrieveObjectRequest] match {
       case JsSuccess(user, _) => Right(user)
-      case e => Left(s"Failed to deserialize Question $e")
+      case e => Left(s"Failed to deserialize RetrieveObjectRequest $e")
     }
 }

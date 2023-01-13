@@ -16,6 +16,6 @@ object CopyObjectRequest {
   def apply(json: JsValue): Either[String, CopyObjectRequest] =
     json.validate[CopyObjectRequest] match {
       case JsSuccess(user, _) => Right(user)
-      case e => Left(s"Failed to deserialize Question $e")
+      case e => Left(s"Failed to deserialize CopyObjectRequest $e")
     }
 }

@@ -11,6 +11,6 @@ object S3BucketListResponse {
   def apply(json: JsValue): Either[String, S3BucketListResponse] =
     json.validate[S3BucketListResponse] match {
       case JsSuccess(user, _) => Right(user)
-      case e => Left(s"Failed to deserialize Question $e")
+      case e => Left(s"Failed to deserialize S3BucketListResponse $e")
     }
 }
