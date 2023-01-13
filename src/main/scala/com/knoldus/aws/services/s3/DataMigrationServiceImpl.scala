@@ -13,7 +13,6 @@ import scala.util.{ Failure, Success, Try }
 
 class DataMigrationServiceImpl(s3config: Configuration) extends DataMigrationService {
 
-  //implicit val s3Service: S3Service = S3Service
   implicit val s3Service: S3Service = new S3Service {
     override val config: Configuration = s3config
 
