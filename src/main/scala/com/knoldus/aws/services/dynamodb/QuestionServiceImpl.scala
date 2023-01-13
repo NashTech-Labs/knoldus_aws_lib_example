@@ -7,18 +7,19 @@ import play.api.libs.json.Json
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.{ Failure, Success, Try }
 
 class QuestionServiceImpl(questionTable: QuestionTable) extends QuestionService with LazyLogging {
 
-  override def submitQuestion(question: Question): Future[Option[String]] =
+  override def submitQuestion(question: Question): Future[String] =
     Future {
       questionTable.put(question.record) match {
         case Right(id) =>
           logger.info("Question submitted successfully")
-          Some(Constants.submitQuestionResponse(id))
+          Constants.submitQuestionResponse(id)
         case Left(message) =>
           logger.error(s"Failed to submitted the question: $message")
-          None
+          Constants.questionNotSubmittedResponse
       }
     }
 
@@ -40,7 +41,7 @@ class QuestionServiceImpl(questionTable: QuestionTable) extends QuestionService 
       }
     }
 
-  override def updateQuestion(id: String, category: String, questionUpdate: QuestionUpdate): Future[Option[String]] =
+  override def updateQuestion(id: String, category: String, questionUpdate: QuestionUpdate): Future[String] =
     Future {
       def updateQuestionEntity(): Question = {
         val updatedTitle = questionUpdate.title
@@ -50,16 +51,23 @@ class QuestionServiceImpl(questionTable: QuestionTable) extends QuestionService 
       logger.info(s"Updating the question with id: $id and category: $category")
       questionTable.update(category, id, updateQuestionEntity().record) match {
         case Right(_) =>
-          Some(Constants.updateQuestionResponse)
+          Constants.updateQuestionResponse
         case Left(message) =>
           logger.error(s"Failed to update the question, reason: $message")
           throw new NoSuchElementException(Constants.noQuestionFoundResponse)
       }
     }
 
-  override def deleteQuestion(id: String, category: String): Future[Unit] =
+  override def deleteQuestion(id: String, category: String): Future[Boolean] =
     Future {
       logger.info(s"Deleting the question with id: $id and category: $category")
-      questionTable.delete(category, id)
+      Try(questionTable.delete(category, id)) match {
+        case Failure(exception) =>
+          logger.error(s"Failed to delete the question, reason: ${exception.getMessage}")
+          false
+        case Success(_) =>
+          logger.info(s"Question Deleted Successfully")
+          true
+      }
     }
 }

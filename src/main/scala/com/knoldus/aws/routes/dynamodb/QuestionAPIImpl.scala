@@ -5,13 +5,13 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{ ExceptionHandler, Route }
 import com.knoldus.aws.models.dynamodb.{ Question, QuestionUpdate }
 import com.knoldus.aws.services.dynamodb.QuestionService
-import com.knoldus.aws.utils.JsonSupport
+import com.knoldus.aws.utils.{ Constants, JsonSupport }
 import com.typesafe.scalalogging.LazyLogging
 
 class QuestionAPIImpl(questionService: QuestionService) extends QuestionAPI with LazyLogging with JsonSupport {
   val routes: Route = submitQuestion ~ getQuestion ~ updateQuestion() ~ deleteQuestion()
 
-  implicit val noSuchElementExceptionHandler: ExceptionHandler = ExceptionHandler {
+  val noSuchElementExceptionHandler: ExceptionHandler = ExceptionHandler {
     case e: NoSuchElementException =>
       complete(StatusCodes.NotFound, e.getMessage)
   }
@@ -60,8 +60,11 @@ class QuestionAPIImpl(questionService: QuestionService) extends QuestionAPI with
           handleExceptions(noSuchElementExceptionHandler) {
             logger.info(s"Making request for deleting a question")
             val responseFuture = questionService.deleteQuestion(questionId, category)
-            onSuccess(responseFuture) {
-              complete(204, None)
+            onSuccess(responseFuture) { questionDeleted =>
+              if (questionDeleted)
+                complete(Constants.questionDeletedResponse)
+              else
+                complete(StatusCodes.InternalServerError, Constants.questionNotDeletedResponse)
             }
           }
         }
