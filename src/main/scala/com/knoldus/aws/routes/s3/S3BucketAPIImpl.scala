@@ -1,9 +1,9 @@
 package com.knoldus.aws.routes.s3
 
-import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse, StatusCodes }
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{ ExceptionHandler, Route }
-import com.knoldus.aws.models.s3.{ RetrieveBucketKeysRequest, S3Bucket, S3BucketListResponse, S3BucketResponse }
+import akka.http.scaladsl.server.{ExceptionHandler, Route}
+import com.knoldus.aws.models.s3.{RetrieveBucketKeysRequest, S3Bucket, S3BucketKeysResponse, S3BucketListResponse, S3BucketResponse}
 import com.knoldus.aws.services.s3.S3BucketService
 import com.knoldus.aws.utils.Constants._
 import com.knoldus.aws.utils.JsonSupport
@@ -178,7 +178,7 @@ class S3BucketAPIImpl(s3BucketService: S3BucketService) extends S3BucketAPI with
                         HttpResponse(
                           StatusCodes.OK,
                           entity =
-                            HttpEntity(ContentTypes.`application/json`, S3BucketListResponse(keys).toJson.prettyPrint)
+                            HttpEntity(ContentTypes.`application/json`, S3BucketKeysResponse(keys).toJson.prettyPrint)
                         )
                       )
                   }

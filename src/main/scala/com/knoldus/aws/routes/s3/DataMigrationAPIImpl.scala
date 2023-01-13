@@ -163,7 +163,7 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
               )
             case Some(bucket) =>
               dataMigrationServiceImpl.deleteFile(bucket, objectDeletionRequest.key) match {
-                case Left(ex) =>
+                case Left(_) =>
                   complete(
                     HttpResponse(
                       StatusCodes.InternalServerError,
@@ -210,28 +210,34 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                       )
                     )
                   case Right(objSummaries) =>
-                    val objResponse = objSummaries.map { obj =>
-                      S3ObjectSummariesResponse(
-                        obj.bucket.name,
-                        obj.getKey,
-                        obj.getSize,
-                        obj.getStorageClass,
-                        obj.getETag,
-                        obj.getLastModified.toString,
-                        obj.getOwner.toString
+                    if (objSummaries.isEmpty) {
+                      complete(
+                        HttpResponse(StatusCodes.NoContent)
                       )
                     }
-                    complete(
-                      HttpResponse(
-                        StatusCodes.OK,
-                        entity = HttpEntity(ContentTypes.`application/json`, objResponse.toJson.prettyPrint)
+                    else {
+                      val objResponse = objSummaries.map { obj =>
+                        S3ObjectSummariesResponse(
+                          obj.bucket.name,
+                          obj.getKey,
+                          obj.getSize,
+                          obj.getStorageClass,
+                          obj.getETag,
+                          obj.getLastModified.toString,
+                          obj.getOwner.toString
+                        )
+                      }
+                      complete(
+                        HttpResponse(
+                          StatusCodes.OK,
+                          entity = HttpEntity(ContentTypes.`application/json`, objResponse.toJson.prettyPrint)
+                        )
                       )
-                    )
+                    }
                 }
             }
           }
         }
       }
     }
-
 }
