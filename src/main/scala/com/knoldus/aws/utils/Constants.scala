@@ -9,11 +9,18 @@ object Constants {
   final val BUCKET_CREATED = "The S3 bucket has been successfully created."
   final val BUCKET_DELETED = "The S3 bucket has been successfully deleted."
   final val BUCKET_ALREADY_EXISTS = "S3 bucket with the same name already exists."
-  final val BUCKET_CREATION_EXCEPTION = "An exception occurred while creating the S3 bucket."
-
+  final val BUCKET_CREATION_EXCEPTION = "An exception encountered while creating the S3 bucket."
+  final val BUCKET_DELETION_EXCEPTION = "An exception encountered while deleting the S3 bucket."
+  final val BUCKET_LISTING_EXCEPTION = "An exception encountered while listing all the S3 buckets."
+  final val RETRIEVING_ALL_KEYS_EXCEPTION = "An exception encountered while retrieving all the S3 bucket keys."
   final val BUCKET_NOT_FOUND = "The specified S3 bucket does not exist."
-  final val NO_BUCKETS_FOUND = "No S3 buckets found for specified S3 configuration."
+  
   final val OBJECT_UPLOADED = "The specified object is uploaded to the S3 bucket successfully."
+  final val OBJECT_UPLOADING_EXCEPTION = "An exception encountered while uploading the object in the S3 bucket."
+  final val OBJECT_RETRIEVAL_EXCEPTION = "An exception encountered while retrieving the object from the S3 bucket."
+  final val OBJECT_COPYING_EXCEPTION = "An exception encountered while copying the object in the S3 bucket."
+  final val OBJECT_DELETION_EXCEPTION = "An exception encountered while deleting the object from the S3 bucket."
+  final val RETRIEVING_ALL_OBJECTS_EXCEPTION = "An exception encountered while retrieving all the objects from the S3 bucket."
 
   final val QUEUE_DELETED = "The queue has been successfully deleted."
   final val MESSAGE_SENT = "The message has been successfully sent."
@@ -21,5 +28,4 @@ object Constants {
   final val MESSAGE_DELETED = "The message has been successfully deleted."
   final val MESSAGES_DELETED = "All the messages has been successfully deleted."
   final val QUEUE_NOT_FOUND = "The specified queue is does not exist."
-  final val NO_QUEUES_FOUND = "No queues found for specified SQS configuration."
 }

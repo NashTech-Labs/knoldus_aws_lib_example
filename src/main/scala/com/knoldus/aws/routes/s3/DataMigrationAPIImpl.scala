@@ -1,13 +1,13 @@
 package com.knoldus.aws.routes.s3
 
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.server.Directives.{ entity, _ }
+import akka.http.scaladsl.server.Directives.{entity, _}
 import akka.http.scaladsl.server.directives.FileInfo
-import akka.http.scaladsl.server.{ ExceptionHandler, Route }
+import akka.http.scaladsl.server.{ExceptionHandler, Route}
 import com.knoldus.aws.bootstrap.DriverApp.actorSystem
 import com.knoldus.aws.models.s3._
-import com.knoldus.aws.services.s3.{ DataMigrationServiceImpl, S3BucketServiceImpl }
-import com.knoldus.aws.utils.Constants.{ BUCKET_NOT_FOUND, OBJECT_UPLOADED }
+import com.knoldus.aws.services.s3.{DataMigrationServiceImpl, S3BucketServiceImpl}
+import com.knoldus.aws.utils.Constants.{BUCKET_NOT_FOUND, OBJECT_COPYING_EXCEPTION, OBJECT_DELETION_EXCEPTION, OBJECT_RETRIEVAL_EXCEPTION, OBJECT_UPLOADED, OBJECT_UPLOADING_EXCEPTION, RETRIEVING_ALL_OBJECTS_EXCEPTION}
 import com.knoldus.aws.utils.JsonSupport
 import com.typesafe.scalalogging.LazyLogging
 import spray.json.enrichAny
@@ -48,9 +48,7 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                         HttpResponse(
                           StatusCodes.InternalServerError,
                           entity = HttpEntity(
-                            ContentTypes.`application/json`,
-                            s"Object could not be uploaded to S3 Bucket : ${error.getMessage}"
-                          )
+                            ContentTypes.`application/json`, OBJECT_UPLOADING_EXCEPTION)
                         )
                       )
                     case Right(_) =>
@@ -94,7 +92,7 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                     complete(
                       HttpResponse(
                         StatusCodes.NotFound,
-                        entity = HttpEntity(ContentTypes.`application/json`, s"S3 Object not found. ${ex.getMessage}")
+                        entity = HttpEntity(ContentTypes.`application/json`, OBJECT_RETRIEVAL_EXCEPTION)
                       )
                     )
                   case Right(s3Object) =>
@@ -128,9 +126,7 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                   HttpResponse(
                     StatusCodes.InternalServerError,
                     entity = HttpEntity(
-                      ContentTypes.`application/json`,
-                      s"Unable to copy S3 object: ${ex.getMessage}"
-                    )
+                      ContentTypes.`application/json`, OBJECT_COPYING_EXCEPTION)
                   )
                 )
               case Right(putObjectResult) =>
@@ -172,9 +168,7 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                     HttpResponse(
                       StatusCodes.InternalServerError,
                       entity = HttpEntity(
-                        ContentTypes.`application/json`,
-                        s"Unable to delete S3 object: ${ex.getMessage}"
-                      )
+                        ContentTypes.`application/json`, OBJECT_DELETION_EXCEPTION)
                     )
                   )
                 case Right(deletedObject) =>
@@ -211,9 +205,7 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                       HttpResponse(
                         StatusCodes.InternalServerError,
                         entity = HttpEntity(
-                          ContentTypes.`application/json`,
-                          s"Exception: ${ex.getMessage}"
-                        )
+                          ContentTypes.`application/json`, RETRIEVING_ALL_OBJECTS_EXCEPTION)
                       )
                     )
                   case Right(objSummaries) =>
