@@ -16,7 +16,12 @@ class BankAccountEventPublisher(val config: Config) extends LazyLogging {
   def publishBankAccountEvent(stream: String, event: BankAccountEvent): Future[Boolean] = {
     val kinesisUserRecord = KinesisUserRecord(stream, event.accountNumber.toString, event.toJsonString)
     logger.info(s"Publishing the event to $stream data stream")
-    kinesisDataProducer.putRecord(kinesisUserRecord).map(_.isSuccessful)
+    kinesisDataProducer.putRecord(kinesisUserRecord).map { result =>
+      logger.info(
+        s"Sequence Number: ${result.getSequenceNumber}, Shard Id: ${result.getShardId}, Number of Attempts: ${result.getAttempts.size()}"
+      )
+      result.isSuccessful
+    }
   }
 
 }
