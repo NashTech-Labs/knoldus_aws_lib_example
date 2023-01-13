@@ -22,4 +22,6 @@ object Constants {
   final val MESSAGES_DELETED = "All the messages has been successfully deleted."
   final val QUEUE_NOT_FOUND = "The specified queue is does not exist."
   final val NO_QUEUES_FOUND = "No queues found for specified SQS configuration."
+
+  final val CANNOT_COPY_OBJECT = "Could not copy object from  the specified bucket."
 }

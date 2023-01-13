@@ -1,13 +1,13 @@
 package com.knoldus.aws.routes.s3
 
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.server.Directives.{ entity, _ }
+import akka.http.scaladsl.server.Directives.{entity, _}
 import akka.http.scaladsl.server.directives.FileInfo
-import akka.http.scaladsl.server.{ ExceptionHandler, Route }
+import akka.http.scaladsl.server.{ExceptionHandler, Route}
 import com.knoldus.aws.bootstrap.DriverApp.actorSystem
 import com.knoldus.aws.models.s3._
-import com.knoldus.aws.services.s3.{ DataMigrationServiceImpl, S3BucketServiceImpl }
-import com.knoldus.aws.utils.Constants.{ BUCKET_NOT_FOUND, OBJECT_UPLOADED }
+import com.knoldus.aws.services.s3.{DataMigrationServiceImpl, S3BucketServiceImpl}
+import com.knoldus.aws.utils.Constants.{BUCKET_NOT_FOUND, CANNOT_COPY_OBJECT, OBJECT_UPLOADED}
 import com.knoldus.aws.utils.JsonSupport
 import com.typesafe.scalalogging.LazyLogging
 import spray.json.enrichAny
@@ -123,13 +123,13 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
               copyObjectRequest.destinationBucketName,
               copyObjectRequest.destinationKey
             ) match {
-              case Left(ex) =>
+              case Left(_) =>
                 complete(
                   HttpResponse(
                     StatusCodes.InternalServerError,
                     entity = HttpEntity(
                       ContentTypes.`application/json`,
-                      s"Unable to copy S3 object: ${ex.getMessage}"
+                      CANNOT_COPY_OBJECT
                     )
                   )
                 )
@@ -139,7 +139,6 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                   putObjectResult.key,
                   putObjectResult.expirationTime.toString
                 )
-                println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + copyObjectResponse)
                 complete(
                   HttpResponse(
                     StatusCodes.OK,
