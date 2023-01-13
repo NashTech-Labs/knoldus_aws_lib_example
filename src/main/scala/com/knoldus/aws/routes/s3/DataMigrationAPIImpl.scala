@@ -43,12 +43,11 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                   )
                 case Some(bucket) =>
                   dataMigrationServiceImpl.uploadFileToS3(bucket, file, key) match {
-                    case Left(error) =>
+                    case Left(_) =>
                       complete(
                         HttpResponse(
                           StatusCodes.InternalServerError,
-                          entity = HttpEntity(
-                            ContentTypes.`application/json`, OBJECT_UPLOADING_EXCEPTION)
+                          entity = HttpEntity(ContentTypes.`application/json`, OBJECT_UPLOADING_EXCEPTION)
                         )
                       )
                     case Right(_) =>
@@ -88,7 +87,7 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                   fileRetrieveRequest.key,
                   fileRetrieveRequest.versionId
                 ) match {
-                  case Left(ex) =>
+                  case Left(_) =>
                     complete(
                       HttpResponse(
                         StatusCodes.NotFound,
@@ -99,7 +98,10 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                     complete(
                       HttpResponse(
                         StatusCodes.OK,
-                        entity = HttpEntity(ContentTypes.`application/json`, s3Object.toString)
+                        entity = HttpEntity(
+                          ContentTypes.`application/json`,
+                          S3ObjectResponse(s3Object.bucket.name, s3Object.key).toJson.prettyPrint
+                        )
                       )
                     )
                 }
@@ -125,8 +127,7 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                 complete(
                   HttpResponse(
                     StatusCodes.InternalServerError,
-                    entity = HttpEntity(
-                      ContentTypes.`application/json`, OBJECT_COPYING_EXCEPTION)
+                    entity = HttpEntity(ContentTypes.`application/json`, OBJECT_COPYING_EXCEPTION)
                   )
                 )
               case Right(putObjectResult) =>
@@ -166,15 +167,17 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                   complete(
                     HttpResponse(
                       StatusCodes.InternalServerError,
-                      entity = HttpEntity(
-                        ContentTypes.`application/json`, OBJECT_DELETION_EXCEPTION)
+                      entity = HttpEntity(ContentTypes.`application/json`, OBJECT_DELETION_EXCEPTION)
                     )
                   )
                 case Right(deletedObject) =>
                   complete(
                     HttpResponse(
                       StatusCodes.OK,
-                      entity = HttpEntity(ContentTypes.`application/json`, deletedObject.toString)
+                      entity = HttpEntity(
+                        ContentTypes.`application/json`,
+                        S3ObjectResponse(deletedObject.bucket.name, deletedObject.key).toJson.prettyPrint
+                      )
                     )
                   )
               }
@@ -199,17 +202,16 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                 )
               case Some(bucket) =>
                 dataMigrationServiceImpl.getAllObjects(bucket, retrieveObjectSummaries.prefix) match {
-                  case Left(ex) =>
+                  case Left(_) =>
                     complete(
                       HttpResponse(
                         StatusCodes.InternalServerError,
-                        entity = HttpEntity(
-                          ContentTypes.`application/json`, RETRIEVING_ALL_OBJECTS_EXCEPTION)
+                        entity = HttpEntity(ContentTypes.`application/json`, RETRIEVING_ALL_OBJECTS_EXCEPTION)
                       )
                     )
                   case Right(objSummaries) =>
                     val objResponse = objSummaries.map { obj =>
-                      S3ObjectResponse(
+                      S3ObjectSummariesResponse(
                         obj.bucket.name,
                         obj.getKey,
                         obj.getSize,

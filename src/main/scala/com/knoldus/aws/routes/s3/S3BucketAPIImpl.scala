@@ -1,9 +1,9 @@
 package com.knoldus.aws.routes.s3
 
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, StatusCodes}
+import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse, StatusCodes }
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{ExceptionHandler, Route}
-import com.knoldus.aws.models.s3.{RetrieveBucketKeysRequest, S3Bucket, S3BucketListResponse, S3BucketResponse}
+import akka.http.scaladsl.server.{ ExceptionHandler, Route }
+import com.knoldus.aws.models.s3.{ RetrieveBucketKeysRequest, S3Bucket, S3BucketListResponse, S3BucketResponse }
 import com.knoldus.aws.services.s3.S3BucketService
 import com.knoldus.aws.utils.Constants._
 import com.knoldus.aws.utils.JsonSupport
@@ -34,7 +34,7 @@ class S3BucketAPIImpl(s3BucketService: S3BucketService) extends S3BucketAPI with
               )
             case None =>
               s3BucketService.createS3Bucket(bucketCreationRequest.bucketName) match {
-                case Left(ex) =>
+                case Left(_) =>
                   complete(
                     HttpResponse(
                       StatusCodes.InternalServerError,
@@ -69,12 +69,11 @@ class S3BucketAPIImpl(s3BucketService: S3BucketService) extends S3BucketAPI with
               )
             case Some(bucket) =>
               s3BucketService.deleteS3Bucket(bucket) match {
-                case Left(ex) =>
+                case Left(_) =>
                   complete(
                     HttpResponse(
                       StatusCodes.InternalServerError,
-                      entity = HttpEntity(
-                        ContentTypes.`application/json`, BUCKET_DELETION_EXCEPTION)
+                      entity = HttpEntity(ContentTypes.`application/json`, BUCKET_DELETION_EXCEPTION)
                     )
                   )
                 case Right(msg) =>
@@ -122,12 +121,11 @@ class S3BucketAPIImpl(s3BucketService: S3BucketService) extends S3BucketAPI with
           handleExceptions(noSuchElementExceptionHandler) {
             logger.info(s"Making request for getting all the S3 buckets.")
             s3BucketService.listAllBuckets match {
-              case Left(ex) =>
+              case Left(_) =>
                 complete(
                   HttpResponse(
                     StatusCodes.InternalServerError,
-                    entity = HttpEntity(
-                      ContentTypes.`application/json`, BUCKET_LISTING_EXCEPTION)
+                    entity = HttpEntity(ContentTypes.`application/json`, BUCKET_LISTING_EXCEPTION)
                   )
                 )
               case Right(bucketSeq) =>
@@ -168,12 +166,11 @@ class S3BucketAPIImpl(s3BucketService: S3BucketService) extends S3BucketAPI with
                   )
                 case Some(bucket) =>
                   s3BucketService.retrieveBucketKeys(bucket, prefix) match {
-                    case Left(ex) =>
+                    case Left(_) =>
                       complete(
                         HttpResponse(
                           StatusCodes.InternalServerError,
-                          entity = HttpEntity(
-                            ContentTypes.`application/json`, RETRIEVING_ALL_KEYS_EXCEPTION)
+                          entity = HttpEntity(ContentTypes.`application/json`, RETRIEVING_ALL_KEYS_EXCEPTION)
                         )
                       )
                     case Right(keys) =>

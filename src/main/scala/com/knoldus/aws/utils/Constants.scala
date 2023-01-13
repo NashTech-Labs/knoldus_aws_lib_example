@@ -20,7 +20,9 @@ object Constants {
   final val OBJECT_RETRIEVAL_EXCEPTION = "An exception encountered while retrieving the object from the S3 bucket."
   final val OBJECT_COPYING_EXCEPTION = "An exception encountered while copying the object in the S3 bucket."
   final val OBJECT_DELETION_EXCEPTION = "An exception encountered while deleting the object from the S3 bucket."
-  final val RETRIEVING_ALL_OBJECTS_EXCEPTION = "An exception encountered while retrieving all the objects from the S3 bucket."
+
+  final val RETRIEVING_ALL_OBJECTS_EXCEPTION =
+    "An exception encountered while retrieving all the objects from the S3 bucket."
 
   final val QUEUE_DELETED = "The queue has been successfully deleted."
   final val MESSAGE_SENT = "The message has been successfully sent."
@@ -34,7 +36,9 @@ object Constants {
   final val SEND_MSG_TO_FIFO_EXCEPTION = "An exception encountered while sending a message to fifo queue."
   final val SEND_MSGS_TO_FIFO_EXCEPTION = "An exception encountered while sending multiple messages to fifo queue."
   final val SEND_MSG_TO_STANDARD_EXCEPTION = "An exception encountered while sending a message to standard queue."
-  final val SEND_MSGS_TO_STANDARD_EXCEPTION = "An exception encountered while sending multiple messages to standard queue."
+
+  final val SEND_MSGS_TO_STANDARD_EXCEPTION =
+    "An exception encountered while sending multiple messages to standard queue."
   final val MESSAGE_DELETION_EXCEPTION = "An exception encountered while deleting a message from the queue."
   final val MESSAGES_DELETION_EXCEPTION = "An exception encountered while deleting multiple messages from the queue."
   final val MESSAGE_RECEIVING_EXCEPTION = "An exception encountered while receiving a message from the queue."
