@@ -13,7 +13,6 @@ import scala.util.{ Failure, Success, Try }
 
 class DataMigrationServiceImpl(s3config: Configuration) extends DataMigrationService {
 
-  //implicit val s3Service: S3Service = S3Service
   implicit val s3Service: S3Service = new S3Service {
     override val config: Configuration = s3config
 
@@ -60,11 +59,9 @@ class DataMigrationServiceImpl(s3config: Configuration) extends DataMigrationSer
       case Success(deletedObject) => Right(deletedObject)
     }
 
-  override def getAllObjects(bucket: Bucket, prefix: String): Either[Throwable, Seq[S3ObjectSummary]] = {
-    val s3ObjectSummaryEither = Try(s3Service.listDirAndObjectWithPrefix(bucket, prefix))
-    s3ObjectSummaryEither match {
+  override def getAllObjects(bucket: Bucket, prefix: String): Either[Throwable, Seq[S3ObjectSummary]] =
+    Try(s3Service.listDirAndObjectWithPrefix(bucket, prefix)) match {
       case Failure(ex) => Left(ex)
       case Success(value) => Right(value.flatMap(_.toSeq))
     }
-  }
 }

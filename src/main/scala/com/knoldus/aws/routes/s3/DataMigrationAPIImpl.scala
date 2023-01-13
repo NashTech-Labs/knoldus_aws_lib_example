@@ -7,7 +7,7 @@ import akka.http.scaladsl.server.{ExceptionHandler, Route}
 import com.knoldus.aws.bootstrap.DriverApp.actorSystem
 import com.knoldus.aws.models.s3._
 import com.knoldus.aws.services.s3.{DataMigrationServiceImpl, S3BucketServiceImpl}
-import com.knoldus.aws.utils.Constants.{BUCKET_NOT_FOUND, OBJECT_COPYING_EXCEPTION, OBJECT_DELETION_EXCEPTION, OBJECT_RETRIEVAL_EXCEPTION, OBJECT_UPLOADED, OBJECT_UPLOADING_EXCEPTION, RETRIEVING_ALL_OBJECTS_EXCEPTION}
+import com.knoldus.aws.utils.Constants._
 import com.knoldus.aws.utils.JsonSupport
 import com.typesafe.scalalogging.LazyLogging
 import spray.json.enrichAny
@@ -121,7 +121,7 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
               copyObjectRequest.destinationBucketName,
               copyObjectRequest.destinationKey
             ) match {
-              case Left(ex) =>
+              case Left(_) =>
                 complete(
                   HttpResponse(
                     StatusCodes.InternalServerError,
@@ -133,8 +133,7 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                 val copyObjectResponse = CopyObjectResponse(
                   putObjectResult.bucket.name,
                   putObjectResult.key,
-                  putObjectResult.versionId,
-                  putObjectResult.expirationTime.toString()
+                  putObjectResult.expirationTime.toString
                 )
                 complete(
                   HttpResponse(

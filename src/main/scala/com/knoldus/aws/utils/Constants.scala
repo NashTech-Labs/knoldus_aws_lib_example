@@ -14,7 +14,7 @@ object Constants {
   final val BUCKET_LISTING_EXCEPTION = "An exception encountered while listing all the S3 buckets."
   final val RETRIEVING_ALL_KEYS_EXCEPTION = "An exception encountered while retrieving all the S3 bucket keys."
   final val BUCKET_NOT_FOUND = "The specified S3 bucket does not exist."
-  
+
   final val OBJECT_UPLOADED = "The specified object is uploaded to the S3 bucket successfully."
   final val OBJECT_UPLOADING_EXCEPTION = "An exception encountered while uploading the object in the S3 bucket."
   final val OBJECT_RETRIEVAL_EXCEPTION = "An exception encountered while retrieving the object from the S3 bucket."
@@ -28,4 +28,15 @@ object Constants {
   final val MESSAGE_DELETED = "The message has been successfully deleted."
   final val MESSAGES_DELETED = "All the messages has been successfully deleted."
   final val QUEUE_NOT_FOUND = "The specified queue is does not exist."
+
+  final val QUEUE_CREATION_EXCEPTION = "An exception encountered while creating a new queue."
+  final val QUEUE_DELETION_EXCEPTION = "An exception encountered while deleting a queue."
+  final val SEND_MSG_TO_FIFO_EXCEPTION = "An exception encountered while sending a message to fifo queue."
+  final val SEND_MSGS_TO_FIFO_EXCEPTION = "An exception encountered while sending multiple messages to fifo queue."
+  final val SEND_MSG_TO_STANDARD_EXCEPTION = "An exception encountered while sending a message to standard queue."
+  final val SEND_MSGS_TO_STANDARD_EXCEPTION = "An exception encountered while sending multiple messages to standard queue."
+  final val MESSAGE_DELETION_EXCEPTION = "An exception encountered while deleting a message from the queue."
+  final val MESSAGES_DELETION_EXCEPTION = "An exception encountered while deleting multiple messages from the queue."
+  final val MESSAGE_RECEIVING_EXCEPTION = "An exception encountered while receiving a message from the queue."
+
 }

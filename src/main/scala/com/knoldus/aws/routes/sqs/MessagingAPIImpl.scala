@@ -1,8 +1,8 @@
 package com.knoldus.aws.routes.sqs
 
-import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse, StatusCodes }
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{ ExceptionHandler, Route }
+import akka.http.scaladsl.server.{ExceptionHandler, Route}
 import com.knoldus.aws.models.sqs._
 import com.knoldus.aws.services.sqs.MessagingServiceImpl
 import com.knoldus.aws.utils.Constants._
@@ -11,14 +11,14 @@ import com.typesafe.scalalogging.LazyLogging
 import spray.json.enrichAny
 
 class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
-    extends MessagingAPI
+  extends MessagingAPI
     with JsonSupport
     with LazyLogging {
 
   val routes: Route =
     createQueue ~ listQueues ~ deleteQueue() ~ sendMsgToFIFOQueue ~ sendMsgToStandardQueue ~
-        sendMultipleMsgToFIFOQueue ~ sendMultipleMsgToStandardQueue ~ receiveMessage ~
-        deleteMessage() ~ deleteMultipleMessages()
+      sendMultipleMsgToFIFOQueue ~ sendMultipleMsgToStandardQueue ~ receiveMessage ~
+      deleteMessage() ~ deleteMultipleMessages()
 
   implicit val noSuchElementExceptionHandler: ExceptionHandler = ExceptionHandler {
     case e: NoSuchElementException =>
@@ -32,10 +32,11 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
           logger.info("Making request for creating a new queue.")
           messagingServiceImpl.createNewQueue(createQueueRequest.queueName, createQueueRequest.queueType) match {
             case Left(ex) =>
+              logger.info(s"Exception occurred while creating a queue: ${ex.getMessage}")
               complete(
                 HttpResponse(
                   StatusCodes.BadRequest,
-                  entity = HttpEntity(ContentTypes.`application/json`, s"Exception ${ex.getMessage}")
+                  entity = HttpEntity(ContentTypes.`application/json`, QUEUE_CREATION_EXCEPTION)
                 )
               )
             case Right(queue) =>
@@ -95,9 +96,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
                     HttpResponse(
                       StatusCodes.InternalServerError,
                       entity = HttpEntity(
-                        ContentTypes.`application/json`,
-                        s"The specified queue could not be deleted. : ${ex.getMessage}"
-                      )
+                        ContentTypes.`application/json`, QUEUE_DELETION_EXCEPTION)
                     )
                   )
                 case Right(_) =>
@@ -137,7 +136,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
                       complete(
                         HttpResponse(
                           StatusCodes.InternalServerError,
-                          entity = HttpEntity(ContentTypes.`application/json`, s"Exception ${ex.getMessage}")
+                          entity = HttpEntity(ContentTypes.`application/json`, SEND_MSG_TO_FIFO_EXCEPTION)
                         )
                       )
                     case Right(msg) =>
@@ -181,7 +180,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
                       complete(
                         HttpResponse(
                           StatusCodes.InternalServerError,
-                          entity = HttpEntity(ContentTypes.`application/json`, s"Exception ${ex.getMessage}")
+                          entity = HttpEntity(ContentTypes.`application/json`, SEND_MSG_TO_STANDARD_EXCEPTION)
                         )
                       )
                     case Right(msg) =>
@@ -225,7 +224,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
                       complete(
                         HttpResponse(
                           StatusCodes.InternalServerError,
-                          entity = HttpEntity(ContentTypes.`application/json`, s"Exception ${ex.getMessage}")
+                          entity = HttpEntity(ContentTypes.`application/json`, SEND_MSGS_TO_FIFO_EXCEPTION)
                         )
                       )
                     case Right(msg) =>
@@ -269,7 +268,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
                       complete(
                         HttpResponse(
                           StatusCodes.InternalServerError,
-                          entity = HttpEntity(ContentTypes.`application/json`, s"Exception ${ex.getMessage}")
+                          entity = HttpEntity(ContentTypes.`application/json`, SEND_MSGS_TO_STANDARD_EXCEPTION)
                         )
                       )
                     case Right(msg) =>
@@ -312,9 +311,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
                         HttpResponse(
                           StatusCodes.InternalServerError,
                           entity = HttpEntity(
-                            ContentTypes.`application/json`,
-                            s"Cannot be received message for the specified queue : ${ex.getMessage}"
-                          )
+                            ContentTypes.`application/json`, MESSAGE_RECEIVING_EXCEPTION)
                         )
                       )
                     case Right(messages) =>
@@ -357,9 +354,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
                     HttpResponse(
                       StatusCodes.InternalServerError,
                       entity = HttpEntity(
-                        ContentTypes.`application/json`,
-                        s"Cannot be delete message for the specified queue : ${ex.getMessage}"
-                      )
+                        ContentTypes.`application/json`, MESSAGE_DELETION_EXCEPTION)
                     )
                   )
                 case Right(_) =>
@@ -398,9 +393,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
                     HttpResponse(
                       StatusCodes.InternalServerError,
                       entity = HttpEntity(
-                        ContentTypes.`application/json`,
-                        s"Cannot be delete multiple messages for the specified queue : ${ex.getMessage}"
-                      )
+                        ContentTypes.`application/json`, MESSAGES_DELETION_EXCEPTION)
                     )
                   )
                 case Right(_) =>

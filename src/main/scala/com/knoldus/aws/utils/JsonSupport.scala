@@ -70,7 +70,7 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
     RetrieveBucketKeysRequest.apply
   )
 
-  implicit val copyObjectResponseFormat: RootJsonFormat[CopyObjectResponse] = jsonFormat4(
+  implicit val copyObjectResponseFormat: RootJsonFormat[CopyObjectResponse] = jsonFormat3(
     CopyObjectResponse.apply
   )
 
