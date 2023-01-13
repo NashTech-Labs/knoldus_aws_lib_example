@@ -2,7 +2,7 @@ package com.knoldus.aws.bootstrap
 
 import com.knoldus.aws.models.dynamodb.QuestionTable
 import com.knoldus.aws.services.dynamodb.QuestionServiceImpl
-import com.knoldus.aws.services.kinesis.{ BankAccountEventGenerator, BankAccountEventPublisher }
+import com.knoldus.aws.services.kinesis.writer.{ BankAccountEventGenerator, BankAccountEventPublisher }
 import com.typesafe.config.Config
 
 class ServiceInstantiator(conf: Config) {

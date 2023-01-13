@@ -24,6 +24,8 @@ object Dependencies {
     val sqsVersion = "1.0"
     val KnoldusAwsVersion = "1.0"
 
+    val kclVersion = "2.3.0"
+
     // Logging
     val ScalaLoggingVersion = "3.9.5"
 
@@ -49,6 +51,8 @@ object Dependencies {
     val KnoldusAwsSQS = "knoldus" % "sqs-service_2.13" % sqsVersion
     val KnoldusAws = "knoldus" % "knoldus_aws_lib_2.13" % KnoldusAwsVersion
 
+    val awsKCL = "software.amazon.kinesis" % "amazon-kinesis-client" % kclVersion
+
     val All: Seq[ModuleID] = Seq(
       ScalaLogging,
       PlayJson,
@@ -59,7 +63,8 @@ object Dependencies {
       AkkaHttpCors,
       AkkaHttpTestKit,
       KnoldusAws,
-      Logback
+      Logback,
+      awsKCL
     )
   }
 

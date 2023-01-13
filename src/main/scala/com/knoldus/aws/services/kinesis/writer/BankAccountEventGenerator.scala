@@ -1,4 +1,4 @@
-package com.knoldus.aws.services.kinesis
+package com.knoldus.aws.services.kinesis.writer
 
 import com.knoldus.aws.models.kinesis.{
   BankAccountCreationEventRequest,

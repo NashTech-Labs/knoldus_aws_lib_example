@@ -1,9 +1,9 @@
 package com.knoldus.aws.routes.kinesis
 
 import akka.http.scaladsl.server.Route
-import com.knoldus.aws.services.kinesis.BankAccountEventGenerator
 import akka.http.scaladsl.server.Directives._
 import com.knoldus.aws.models.kinesis.{ BankAccountCreationEventRequest, UpdateBankAccountEventRequest }
+import com.knoldus.aws.services.kinesis.writer.BankAccountEventGenerator
 import com.knoldus.aws.utils.JsonSupport
 import com.typesafe.scalalogging.LazyLogging
 
