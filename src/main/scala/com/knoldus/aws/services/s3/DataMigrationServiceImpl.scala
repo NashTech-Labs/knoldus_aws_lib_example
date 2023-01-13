@@ -1,14 +1,38 @@
 package com.knoldus.aws.services.s3
 
-import com.knoldus.s3.models.{ Bucket, DeletedObject, PutObjectResult, S3Object, S3ObjectSummary }
+import com.amazonaws.auth.{ AWSCredentialsProvider, DefaultAWSCredentialsProviderChain }
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
+import com.amazonaws.services.s3.{ AmazonS3, AmazonS3ClientBuilder }
+import com.knoldus.common.aws.CredentialsLookup
+import com.knoldus.s3.models.{ Bucket, Configuration, DeletedObject, PutObjectResult, S3Object, S3ObjectSummary }
 import com.knoldus.s3.services.S3Service
+import com.knoldus.s3.services.S3Service.buildAmazonS3Client
 
 import java.io.File
 import scala.util.{ Failure, Success, Try }
 
-class DataMigrationServiceImpl extends DataMigrationService {
+class DataMigrationServiceImpl(s3config: Configuration) extends DataMigrationService {
 
-  implicit val s3Service: S3Service = S3Service
+  //implicit val s3Service: S3Service = S3Service
+  implicit val s3Service: S3Service = new S3Service {
+    override val config: Configuration = s3config
+
+    override val amazonS3Client: AmazonS3 =
+      if (s3config.s3Config.serviceEndpoint.equals("http://localhost:4566"))
+        AmazonS3ClientBuilder
+          .standard()
+          .withEndpointConfiguration(
+            new EndpointConfiguration(s3config.s3Config.serviceEndpoint, s3config.awsConfig.awsRegion)
+          )
+          .withCredentials(new DefaultAWSCredentialsProviderChain())
+          .withPathStyleAccessEnabled(true)
+          .build()
+      else {
+        val credentials: AWSCredentialsProvider =
+          CredentialsLookup.getCredentialsProvider(s3config.awsConfig.awsAccessKey, s3config.awsConfig.awsSecretKey)
+        buildAmazonS3Client(s3config, credentials)
+      }
+  }
 
   override def uploadFileToS3(bucket: Bucket, file: File, key: String): Either[Throwable, PutObjectResult] =
     Try(s3Service.putObject(bucket, key, file)) match {

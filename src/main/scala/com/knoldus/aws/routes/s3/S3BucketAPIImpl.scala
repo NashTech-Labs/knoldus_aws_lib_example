@@ -12,7 +12,7 @@ import spray.json.enrichAny
 
 class S3BucketAPIImpl(s3BucketService: S3BucketService) extends S3BucketAPI with JsonSupport with LazyLogging {
 
-  val routes: Route = createS3Bucket ~ searchS3Bucket ~ listAllBuckets ~ deleteS3Bucket()
+  val routes: Route = createS3Bucket ~ searchS3Bucket ~ listAllBuckets ~ deleteS3Bucket() ~ retrieveAllBucketKeys
 
   implicit val noSuchElementExceptionHandler: ExceptionHandler = ExceptionHandler {
     case e: NoSuchElementException =>

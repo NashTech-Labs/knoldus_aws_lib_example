@@ -20,7 +20,7 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
     with JsonSupport
     with LazyLogging {
 
-  val routes: Route = retrieveFile ~ copyFile ~ deleteFile()
+  val routes: Route = uploadFileToS3 ~ retrieveFile ~ copyFile ~ deleteFile() ~ getAllObjects
 
   implicit val noSuchElementExceptionHandler: ExceptionHandler = ExceptionHandler {
     case e: NoSuchElementException =>
@@ -134,10 +134,16 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                   )
                 )
               case Right(putObjectResult) =>
+                val copyObjectResponse = CopyObjectResponse(
+                  putObjectResult.bucket.name,
+                  putObjectResult.key,
+                  putObjectResult.versionId,
+                  putObjectResult.expirationTime.toString()
+                )
                 complete(
                   HttpResponse(
                     StatusCodes.OK,
-                    entity = HttpEntity(ContentTypes.`application/json`, putObjectResult.toString)
+                    entity = HttpEntity(ContentTypes.`application/json`, copyObjectResponse.toJson.prettyPrint)
                   )
                 )
             }
