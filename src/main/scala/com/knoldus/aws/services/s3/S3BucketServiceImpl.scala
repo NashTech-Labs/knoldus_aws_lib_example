@@ -16,14 +16,21 @@ class S3BucketServiceImpl(s3config: Configuration) extends S3BucketService {
   implicit val s3Service: S3Service = new S3Service {
     override val config: Configuration = s3config
 
-    override val amazonS3Client: AmazonS3 = AmazonS3ClientBuilder
-      .standard()
-      .withEndpointConfiguration(
-        new EndpointConfiguration(s3config.s3Config.serviceEndpoint, s3config.awsConfig.awsRegion)
-      )
-      .withCredentials(new DefaultAWSCredentialsProviderChain())
-      .withPathStyleAccessEnabled(true)
-      .build()
+    override val amazonS3Client: AmazonS3 =
+      if (s3config.s3Config.serviceEndpoint.equals("http://localhost:4566"))
+        AmazonS3ClientBuilder
+          .standard()
+          .withEndpointConfiguration(
+            new EndpointConfiguration(s3config.s3Config.serviceEndpoint, s3config.awsConfig.awsRegion)
+          )
+          .withCredentials(new DefaultAWSCredentialsProviderChain())
+          .withPathStyleAccessEnabled(true)
+          .build()
+      else {
+        val credentials: AWSCredentialsProvider =
+          CredentialsLookup.getCredentialsProvider(s3config.awsConfig.awsAccessKey, s3config.awsConfig.awsSecretKey)
+        buildAmazonS3Client(s3config, credentials)
+      }
   }
 
   override def createS3Bucket(bucketName: String): Either[Throwable, Bucket] =

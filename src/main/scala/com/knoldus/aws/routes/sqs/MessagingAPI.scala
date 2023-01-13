@@ -21,6 +21,7 @@ trait MessagingAPI {
   def receiveMessage: Route
 
   def deleteMessage(): Route
+
   def deleteMultipleMessages(): Route
 
 }

@@ -6,9 +6,9 @@ import java.io.File
 
 trait DataMigrationService {
 
-  def uploadFileToS3(file: File, key: String)(implicit bucket: Bucket): Either[Throwable, PutObjectResult]
+  def uploadFileToS3(bucket: Bucket, file: File, key: String): Either[Throwable, PutObjectResult]
 
-  def retrieveFile(key: String, versionId: Option[String])(implicit bucket: Bucket): Either[Throwable, S3Object]
+  def retrieveFile(bucket: Bucket, key: String, versionId: Option[String]): Either[Throwable, S3Object]
 
   def copyFile(
     sourceBucketName: String,
@@ -17,7 +17,7 @@ trait DataMigrationService {
     destinationKey: String
   ): Either[Throwable, PutObjectResult]
 
-  def deleteFile(key: String)(implicit bucket: Bucket): Either[Throwable, DeletedObject]
+  def deleteFile(bucket: Bucket, key: String): Either[Throwable, DeletedObject]
 
   def getAllObjects(bucket: Bucket, prefix: String): Either[Throwable, Seq[S3ObjectSummary]]
 

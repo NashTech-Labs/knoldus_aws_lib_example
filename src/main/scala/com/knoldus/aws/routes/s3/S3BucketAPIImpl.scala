@@ -10,8 +10,6 @@ import com.knoldus.aws.utils.JsonSupport
 import com.typesafe.scalalogging.LazyLogging
 import spray.json.enrichAny
 
-import scala.collection.immutable.Stream.Empty
-
 class S3BucketAPIImpl(s3BucketService: S3BucketService) extends S3BucketAPI with JsonSupport with LazyLogging {
 
   val routes: Route = createS3Bucket ~ searchS3Bucket ~ listAllBuckets ~ deleteS3Bucket()
@@ -24,11 +22,10 @@ class S3BucketAPIImpl(s3BucketService: S3BucketService) extends S3BucketAPI with
   override def createS3Bucket: Route =
     path("bucket" / "create") {
       pathEnd {
-        (put & entity(as[S3Bucket])) { bucketCreationRequest =>
+        (post & entity(as[S3Bucket])) { bucketCreationRequest =>
           logger.info("Making request for S3 bucket creation")
           s3BucketService.searchS3Bucket(bucketCreationRequest.bucketName) match {
             case Some(_) =>
-              println("S3 bucket creation1")
               complete(
                 HttpResponse(
                   StatusCodes.BadRequest,
@@ -66,7 +63,7 @@ class S3BucketAPIImpl(s3BucketService: S3BucketService) extends S3BucketAPI with
             case None =>
               complete(
                 HttpResponse(
-                  StatusCodes.InternalServerError,
+                  StatusCodes.NotFound,
                   entity = HttpEntity(ContentTypes.`application/json`, BUCKET_NOT_FOUND)
                 )
               )

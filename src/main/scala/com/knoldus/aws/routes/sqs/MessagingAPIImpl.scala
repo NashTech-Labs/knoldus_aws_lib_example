@@ -84,7 +84,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
             case None =>
               complete(
                 HttpResponse(
-                  StatusCodes.InternalServerError,
+                  StatusCodes.NotFound,
                   entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
                 )
               )
@@ -121,7 +121,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
                 case None =>
                   complete(
                     HttpResponse(
-                      StatusCodes.InternalServerError,
+                      StatusCodes.NotFound,
                       entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
                     )
                   )
@@ -165,7 +165,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
                 case None =>
                   complete(
                     HttpResponse(
-                      StatusCodes.InternalServerError,
+                      StatusCodes.NotFound,
                       entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
                     )
                   )
@@ -209,7 +209,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
                 case None =>
                   complete(
                     HttpResponse(
-                      StatusCodes.InternalServerError,
+                      StatusCodes.NotFound,
                       entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
                     )
                   )
@@ -253,7 +253,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
                 case None =>
                   complete(
                     HttpResponse(
-                      StatusCodes.InternalServerError,
+                      StatusCodes.NotFound,
                       entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
                     )
                   )
@@ -297,7 +297,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
                 case None =>
                   complete(
                     HttpResponse(
-                      StatusCodes.InternalServerError,
+                      StatusCodes.NotFound,
                       entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
                     )
                   )
@@ -343,7 +343,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
             case None =>
               complete(
                 HttpResponse(
-                  StatusCodes.InternalServerError,
+                  StatusCodes.NotFound,
                   entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
                 )
               )
@@ -384,7 +384,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
             case None =>
               complete(
                 HttpResponse(
-                  StatusCodes.InternalServerError,
+                  StatusCodes.NotFound,
                   entity = HttpEntity(ContentTypes.`application/json`, QUEUE_NOT_FOUND)
                 )
               )

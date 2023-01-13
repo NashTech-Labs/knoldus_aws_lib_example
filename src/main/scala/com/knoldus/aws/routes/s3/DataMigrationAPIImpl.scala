@@ -9,7 +9,6 @@ import com.knoldus.aws.models.s3._
 import com.knoldus.aws.services.s3.{ DataMigrationServiceImpl, S3BucketServiceImpl }
 import com.knoldus.aws.utils.Constants.{ BUCKET_NOT_FOUND, OBJECT_UPLOADED }
 import com.knoldus.aws.utils.JsonSupport
-import com.knoldus.s3.models.Bucket
 import com.typesafe.scalalogging.LazyLogging
 import spray.json.enrichAny
 
@@ -34,25 +33,34 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
         formField("bucketName", "key") { (bucketName, key) =>
           storeUploadedFile("file", tempDestination) {
             case (_, file: File) =>
-              implicit val bucket: Bucket = Bucket(bucketName)
-              dataMigrationServiceImpl.uploadFileToS3(file, key) match {
-                case Left(error) =>
+              s3BucketServiceImpl.searchS3Bucket(bucketName) match {
+                case None =>
                   complete(
                     HttpResponse(
-                      StatusCodes.InternalServerError,
-                      entity = HttpEntity(
-                        ContentTypes.`application/json`,
-                        s"File could not be uploaded to S3 Bucket : ${error.getMessage}"
+                      StatusCodes.NotFound,
+                      entity = HttpEntity(ContentTypes.`application/json`, BUCKET_NOT_FOUND)
+                    )
+                  )
+                case Some(bucket) =>
+                  dataMigrationServiceImpl.uploadFileToS3(bucket, file, key) match {
+                    case Left(error) =>
+                      complete(
+                        HttpResponse(
+                          StatusCodes.InternalServerError,
+                          entity = HttpEntity(
+                            ContentTypes.`application/json`,
+                            s"Object could not be uploaded to S3 Bucket : ${error.getMessage}"
+                          )
+                        )
                       )
-                    )
-                  )
-                case Right(_) =>
-                  complete(
-                    HttpResponse(
-                      StatusCodes.OK,
-                      entity = HttpEntity(ContentTypes.`application/json`, OBJECT_UPLOADED)
-                    )
-                  )
+                    case Right(_) =>
+                      complete(
+                        HttpResponse(
+                          StatusCodes.OK,
+                          entity = HttpEntity(ContentTypes.`application/json`, OBJECT_UPLOADED)
+                        )
+                      )
+                  }
               }
           }
         }
@@ -68,22 +76,35 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
         (get & entity(as[RetrieveObjectRequest])) { fileRetrieveRequest =>
           handleExceptions(noSuchElementExceptionHandler) {
             logger.info(s"Making request for retrieving object from the S3 bucket.")
-            implicit val bucket: Bucket = Bucket(fileRetrieveRequest.bucketName)
-            dataMigrationServiceImpl.retrieveFile(fileRetrieveRequest.key, fileRetrieveRequest.versionId) match {
-              case Left(ex) =>
+            s3BucketServiceImpl.searchS3Bucket(fileRetrieveRequest.bucketName) match {
+              case None =>
                 complete(
                   HttpResponse(
                     StatusCodes.NotFound,
-                    entity = HttpEntity(ContentTypes.`application/json`, s"S3 Object not found. ${ex.getMessage}")
+                    entity = HttpEntity(ContentTypes.`application/json`, BUCKET_NOT_FOUND)
                   )
                 )
-              case Right(s3Object) =>
-                complete(
-                  HttpResponse(
-                    StatusCodes.OK,
-                    entity = HttpEntity(ContentTypes.`application/json`, s3Object.toString)
-                  )
-                )
+              case Some(bucket) =>
+                dataMigrationServiceImpl.retrieveFile(
+                  bucket,
+                  fileRetrieveRequest.key,
+                  fileRetrieveRequest.versionId
+                ) match {
+                  case Left(ex) =>
+                    complete(
+                      HttpResponse(
+                        StatusCodes.NotFound,
+                        entity = HttpEntity(ContentTypes.`application/json`, s"S3 Object not found. ${ex.getMessage}")
+                      )
+                    )
+                  case Right(s3Object) =>
+                    complete(
+                      HttpResponse(
+                        StatusCodes.OK,
+                        entity = HttpEntity(ContentTypes.`application/json`, s3Object.toString)
+                      )
+                    )
+                }
             }
           }
         }
@@ -105,7 +126,7 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
               case Left(ex) =>
                 complete(
                   HttpResponse(
-                    StatusCodes.NotFound,
+                    StatusCodes.InternalServerError,
                     entity = HttpEntity(
                       ContentTypes.`application/json`,
                       s"Unable to copy S3 object: ${ex.getMessage}"
@@ -130,25 +151,34 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
       pathEnd {
         (delete & entity(as[ObjectDeletionRequest])) { objectDeletionRequest =>
           logger.info("Making request for S3 object deletion")
-          implicit val bucket: Bucket = Bucket(objectDeletionRequest.bucketName)
-          dataMigrationServiceImpl.deleteFile(objectDeletionRequest.key) match {
-            case Left(ex) =>
+          s3BucketServiceImpl.searchS3Bucket(objectDeletionRequest.bucketName) match {
+            case None =>
               complete(
                 HttpResponse(
-                  StatusCodes.InternalServerError,
-                  entity = HttpEntity(
-                    ContentTypes.`application/json`,
-                    s"Unable to delete S3 object: ${ex.getMessage}"
+                  StatusCodes.NotFound,
+                  entity = HttpEntity(ContentTypes.`application/json`, BUCKET_NOT_FOUND)
+                )
+              )
+            case Some(bucket) =>
+              dataMigrationServiceImpl.deleteFile(bucket, objectDeletionRequest.key) match {
+                case Left(ex) =>
+                  complete(
+                    HttpResponse(
+                      StatusCodes.InternalServerError,
+                      entity = HttpEntity(
+                        ContentTypes.`application/json`,
+                        s"Unable to delete S3 object: ${ex.getMessage}"
+                      )
+                    )
                   )
-                )
-              )
-            case Right(deletedObject) =>
-              complete(
-                HttpResponse(
-                  StatusCodes.OK,
-                  entity = HttpEntity(ContentTypes.`application/json`, deletedObject.toString)
-                )
-              )
+                case Right(deletedObject) =>
+                  complete(
+                    HttpResponse(
+                      StatusCodes.OK,
+                      entity = HttpEntity(ContentTypes.`application/json`, deletedObject.toString)
+                    )
+                  )
+              }
           }
         }
       }

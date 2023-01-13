@@ -2,11 +2,10 @@ package com.knoldus.aws.services.sqs
 
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.sqs.AmazonSQS
-import com.amazonaws.services.sqs.model.{ DeleteMessageResult, QueueNameExistsException }
 import com.knoldus.aws.utils.Constants._
 import com.knoldus.common.aws.CredentialsLookup
 import com.knoldus.sqs.models.QueueType.QueueType
-import com.knoldus.sqs.models.{ Message, Queue, QueueType, SQSConfig }
+import com.knoldus.sqs.models.{ Message, Queue, SQSConfig }
 import com.knoldus.sqs.services.SQSService
 import com.knoldus.sqs.services.SQSService.buildAmazonSQSClient
 

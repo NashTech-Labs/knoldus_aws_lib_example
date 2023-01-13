@@ -13,7 +13,7 @@ services:
       - SERVICES=kinesis, dynamodb, s3, sqs
       - EDGE_PORT=4566
       - DATA_DIR=/tmp/localstack/data
-      - DEFAULT_REGION=ap-south-1
+      - DEFAULT_REGION=us-east-1
     volumes:
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
@@ -26,7 +26,7 @@ services:
     environment:
       - AWS_ACCESS_KEY_ID=dummy
       - AWS_SECRET_ACCESS_KEY=dummy
-      - AWS_DEFAULT_REGION=ap-south-1
+      - AWS_DEFAULT_REGION=us-east-1
     entrypoint: /bin/sh -c
     command: >
       "
