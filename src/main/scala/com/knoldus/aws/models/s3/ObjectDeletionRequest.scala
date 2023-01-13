@@ -11,6 +11,6 @@ object ObjectDeletionRequest {
   def apply(json: JsValue): Either[String, ObjectDeletionRequest] =
     json.validate[ObjectDeletionRequest] match {
       case JsSuccess(user, _) => Right(user)
-      case e => Left(s"Failed to deserialize Question $e")
+      case e => Left(s"Failed to deserialize ObjectDeletionRequest $e")
     }
 }
