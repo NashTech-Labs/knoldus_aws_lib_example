@@ -1,13 +1,10 @@
 package com.knoldus.aws.models.s3
 
-import com.knoldus.s3.models.Bucket
-import org.joda.time.DateTime
 import play.api.libs.json.{ Format, JsSuccess, JsValue, Json }
 
 case class CopyObjectResponse(
   destinationBucketName: String,
   key: String,
-  versionId: String,
   expirationTime: String
 )
 

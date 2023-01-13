@@ -137,9 +137,9 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                 val copyObjectResponse = CopyObjectResponse(
                   putObjectResult.bucket.name,
                   putObjectResult.key,
-                  putObjectResult.versionId,
-                  putObjectResult.expirationTime.toString()
+                  putObjectResult.expirationTime.toString
                 )
+                println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + copyObjectResponse)
                 complete(
                   HttpResponse(
                     StatusCodes.OK,
