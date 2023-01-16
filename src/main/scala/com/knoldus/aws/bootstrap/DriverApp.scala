@@ -12,6 +12,8 @@ import scala.concurrent.ExecutionContext.global
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ Await, ExecutionContextExecutor, Future }
 import scala.util.{ Failure, Success }
+import com.knoldus.aws.services.kinesis.processor.BankAccountEventConsumer
+import software.amazon.awssdk.regions.Region
 
 object DriverApp extends App with LazyLogging {
   lazy val conf = ConfigFactory.load()
@@ -48,6 +50,20 @@ object DriverApp extends App with LazyLogging {
     case e: Throwable =>
       Await.result(shutdown(e), 30.seconds)
   }
+
+  /**
+   * Bank Account Consumer and Processor specific
+   */
+  val streamName = conf.getString("data-stream-name")
+  val consumerApplicationName = conf.getString("consumer-application-name")
+  val region = Region.of(conf.getString("region"))
+  val bankAccountTableName = conf.getString("bank-account-table-name")
+
+  val bankAccountEventConsumer =
+    new BankAccountEventConsumer(streamName, consumerApplicationName, region, bankAccountTableName)
+
+  // starting the consumer
+  bankAccountEventConsumer.run()
 
   private def shutdown(e: Throwable): Future[Done] = {
     logger.error("Error starting application:")
