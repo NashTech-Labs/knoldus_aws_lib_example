@@ -6,6 +6,8 @@ object Constants {
   final val TEN = 10
   final val EMPTY_ARRAY = "[]"
 
+  final val LOCALSTACK = "http://localhost:4566"
+
   final val BUCKET_CREATED = "The S3 bucket has been successfully created."
   final val BUCKET_DELETED = "The S3 bucket has been successfully deleted."
   final val BUCKET_ALREADY_EXISTS = "S3 bucket with the same name already exists."
@@ -14,6 +16,9 @@ object Constants {
   final val BUCKET_LISTING_EXCEPTION = "An exception encountered while listing all the S3 buckets."
   final val RETRIEVING_ALL_KEYS_EXCEPTION = "An exception encountered while retrieving all the S3 bucket keys."
   final val BUCKET_NOT_FOUND = "The specified S3 bucket does not exist."
+  final val KEY_NOT_FOUND = "The specified S3 bucket key does not exist."
+  final val OBJECT_DELETED = "The specified S3 object has been deleted successfully."
+  final val ALL_OBJECTS_DELETED = "All the S3 objects in the specified S3 Bucket have been deleted successfully."
 
   final val OBJECT_UPLOADED = "The specified object is uploaded to the S3 bucket successfully."
   final val OBJECT_UPLOADING_EXCEPTION = "An exception encountered while uploading the object in the S3 bucket."

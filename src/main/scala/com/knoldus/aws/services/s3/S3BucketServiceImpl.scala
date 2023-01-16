@@ -3,7 +3,7 @@ package com.knoldus.aws.services.s3
 import com.amazonaws.auth.{ AWSCredentialsProvider, DefaultAWSCredentialsProviderChain }
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.services.s3.{ AmazonS3, AmazonS3ClientBuilder }
-import com.knoldus.aws.utils.Constants.BUCKET_DELETED
+import com.knoldus.aws.utils.Constants.{ BUCKET_DELETED, LOCALSTACK }
 import com.knoldus.common.aws.CredentialsLookup
 import com.knoldus.s3.models.{ Bucket, Configuration }
 import com.knoldus.s3.services.S3Service
@@ -17,7 +17,7 @@ class S3BucketServiceImpl(s3config: Configuration) extends S3BucketService {
     override val config: Configuration = s3config
 
     override val amazonS3Client: AmazonS3 =
-      if (s3config.s3Config.serviceEndpoint.equals("http://localhost:4566"))
+      if (s3config.s3Config.serviceEndpoint.equals(LOCALSTACK))
         AmazonS3ClientBuilder
           .standard()
           .withEndpointConfiguration(
@@ -69,7 +69,9 @@ class S3BucketServiceImpl(s3config: Configuration) extends S3BucketService {
       case None => Try(s3Service.keys(bucket))
     }
     tryToRetrieveBucketKeys match {
-      case Failure(ex) => Left(ex)
+      case Failure(ex) =>
+        println(s"\n\n ${ex.getMessage}")
+        Left(ex)
       case Success(keys) => Right(keys)
     }
   }

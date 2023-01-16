@@ -11,7 +11,6 @@ object Dependencies {
     // General
     val PlayJsonVersion = "2.9.3"
     val TypeSafeConfigVersion = "1.4.2"
-    val PureConfigVersion = "0.17.2"
     val AwsJavaSDKVersion = "1.11.490"
     val AkkaVersion = "2.7.0"
     val AkkaHttpVersion = "10.4.0"
@@ -33,7 +32,6 @@ object Dependencies {
 
   object Main {
     val PlayJson = "com.typesafe.play" %% "play-json" % PlayJsonVersion
-    //val PureConfig = "com.github.pureconfig" %% "pureconfig" % PureConfigVersion
     val ScalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % ScalaLoggingVersion
     lazy val macWire = "com.softwaremill.macwire" %% "macros" % "2.5.7"
     val AkkaActor = "com.typesafe.akka" %% "akka-actor" % AkkaVersion
@@ -51,7 +49,6 @@ object Dependencies {
       ScalaLogging,
       PlayJson,
       macWire,
-     // PureConfig,
       AkkaActor,
       AkkaStream,
       AkkaHttp,

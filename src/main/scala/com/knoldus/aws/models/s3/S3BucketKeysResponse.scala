@@ -1,6 +1,6 @@
 package com.knoldus.aws.models.s3
 
-import play.api.libs.json.{Format, JsSuccess, JsValue, Json}
+import play.api.libs.json.{ Format, JsSuccess, JsValue, Json }
 
 case class S3BucketKeysResponse(keys: Seq[String])
 

@@ -162,25 +162,51 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                 )
               )
             case Some(bucket) =>
-              dataMigrationServiceImpl.deleteFile(bucket, objectDeletionRequest.key) match {
-                case Left(_) =>
-                  complete(
-                    HttpResponse(
-                      StatusCodes.InternalServerError,
-                      entity = HttpEntity(ContentTypes.`application/json`, OBJECT_DELETION_EXCEPTION)
-                    )
+              if (objectDeletionRequest.key.isEmpty) {
+                dataMigrationServiceImpl.getAllObjectSummaries(bucket, objectDeletionRequest.key).map { obj =>
+                  dataMigrationServiceImpl.deleteFile(obj.bucket, obj.getKey)
+                }
+                complete(
+                  HttpResponse(
+                    StatusCodes.OK,
+                    entity = HttpEntity(ContentTypes.`application/json`, ALL_OBJECTS_DELETED)
                   )
-                case Right(deletedObject) =>
-                  complete(
-                    HttpResponse(
-                      StatusCodes.OK,
-                      entity = HttpEntity(
-                        ContentTypes.`application/json`,
-                        S3ObjectResponse(deletedObject.bucket.name, deletedObject.key).toJson.prettyPrint
+                )
+              } else
+                s3BucketServiceImpl.retrieveBucketKeys(bucket, Some(objectDeletionRequest.key)).toOption match {
+                  case None =>
+                    complete(
+                      HttpResponse(
+                        StatusCodes.NotFound,
+                        entity = HttpEntity(ContentTypes.`application/json`, KEY_NOT_FOUND)
                       )
                     )
-                  )
-              }
+                  case Some(keys) =>
+                    if (keys.isEmpty)
+                      complete(
+                        HttpResponse(
+                          StatusCodes.NotFound,
+                          entity = HttpEntity(ContentTypes.`application/json`, KEY_NOT_FOUND)
+                        )
+                      )
+                    else
+                      dataMigrationServiceImpl.deleteFile(bucket, objectDeletionRequest.key) match {
+                        case Left(_) =>
+                          complete(
+                            HttpResponse(
+                              StatusCodes.InternalServerError,
+                              entity = HttpEntity(ContentTypes.`application/json`, OBJECT_DELETION_EXCEPTION)
+                            )
+                          )
+                        case Right(_) =>
+                          complete(
+                            HttpResponse(
+                              StatusCodes.OK,
+                              entity = HttpEntity(ContentTypes.`application/json`, OBJECT_DELETED)
+                            )
+                          )
+                      }
+                }
           }
         }
       }
@@ -210,11 +236,10 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                       )
                     )
                   case Right(objSummaries) =>
-                    if (objSummaries.isEmpty) {
+                    if (objSummaries.isEmpty)
                       complete(
                         HttpResponse(StatusCodes.NoContent)
                       )
-                    }
                     else {
                       val objResponse = objSummaries.map { obj =>
                         S3ObjectSummariesResponse(

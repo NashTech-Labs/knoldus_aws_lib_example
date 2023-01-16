@@ -21,4 +21,6 @@ trait DataMigrationService {
 
   def getAllObjects(bucket: Bucket, prefix: String): Either[Throwable, Seq[S3ObjectSummary]]
 
+  def getAllObjectSummaries(bucket: Bucket, prefix: String): List[S3ObjectSummary]
+
 }

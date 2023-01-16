@@ -1,9 +1,9 @@
 package com.knoldus.aws.routes.s3
 
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, StatusCodes}
+import akka.http.scaladsl.model.{ ContentTypes, HttpEntity, HttpResponse, StatusCodes }
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{ExceptionHandler, Route}
-import com.knoldus.aws.models.s3.{RetrieveBucketKeysRequest, S3Bucket, S3BucketKeysResponse, S3BucketListResponse, S3BucketResponse}
+import akka.http.scaladsl.server.{ ExceptionHandler, Route }
+import com.knoldus.aws.models.s3._
 import com.knoldus.aws.services.s3.S3BucketService
 import com.knoldus.aws.utils.Constants._
 import com.knoldus.aws.utils.JsonSupport
@@ -155,25 +155,29 @@ class S3BucketAPIImpl(s3BucketService: S3BucketService) extends S3BucketAPI with
         (get & entity(as[RetrieveBucketKeysRequest])) { retrieveKeysRequest =>
           handleExceptions(noSuchElementExceptionHandler) {
             logger.info(s"Making request for retrieving all the S3 bucket keys.")
-            parameter("prefix".as[String].optional) { prefix =>
-              s3BucketService.searchS3Bucket(retrieveKeysRequest.bucketName) match {
-                case None =>
-                  complete(
-                    HttpResponse(
-                      StatusCodes.NotFound,
-                      entity = HttpEntity(ContentTypes.`application/json`, BUCKET_NOT_FOUND)
-                    )
+            s3BucketService.searchS3Bucket(retrieveKeysRequest.bucketName) match {
+              case None =>
+                complete(
+                  HttpResponse(
+                    StatusCodes.NotFound,
+                    entity = HttpEntity(ContentTypes.`application/json`, BUCKET_NOT_FOUND)
                   )
-                case Some(bucket) =>
-                  s3BucketService.retrieveBucketKeys(bucket, prefix) match {
-                    case Left(_) =>
-                      complete(
-                        HttpResponse(
-                          StatusCodes.InternalServerError,
-                          entity = HttpEntity(ContentTypes.`application/json`, RETRIEVING_ALL_KEYS_EXCEPTION)
-                        )
+                )
+              case Some(bucket) =>
+                s3BucketService.retrieveBucketKeys(bucket, retrieveKeysRequest.prefix) match {
+                  case Left(_) =>
+                    complete(
+                      HttpResponse(
+                        StatusCodes.InternalServerError,
+                        entity = HttpEntity(ContentTypes.`application/json`, RETRIEVING_ALL_KEYS_EXCEPTION)
                       )
-                    case Right(keys) =>
+                    )
+                  case Right(keys) =>
+                    if (keys.isEmpty)
+                      complete(
+                        HttpResponse(StatusCodes.NoContent)
+                      )
+                    else
                       complete(
                         HttpResponse(
                           StatusCodes.OK,
@@ -181,8 +185,7 @@ class S3BucketAPIImpl(s3BucketService: S3BucketService) extends S3BucketAPI with
                             HttpEntity(ContentTypes.`application/json`, S3BucketKeysResponse(keys).toJson.prettyPrint)
                         )
                       )
-                  }
-              }
+                }
             }
           }
         }
