@@ -37,6 +37,7 @@ object Dependencies {
     val ScalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % ScalaLoggingVersion
     val AkkaActor = "com.typesafe.akka" %% "akka-actor" % AkkaVersion
     val AkkaStream = "com.typesafe.akka" %% "akka-stream" % AkkaVersion
+    lazy val macWire = "com.softwaremill.macwire" %% "macros" % "2.5.7"
     val AkkaHttp = "com.typesafe.akka" %% "akka-http" % AkkaHttpVersion
     val AkkaHttpSpray = "com.typesafe.akka" %% "akka-http-spray-json" % AkkaHttpVersion
     val AkkaHttpCors =  "ch.megard" %% "akka-http-cors" % AkkaHttpCorsVersion
@@ -52,6 +53,7 @@ object Dependencies {
     val All: Seq[ModuleID] = Seq(
       ScalaLogging,
       PlayJson,
+      macWire,
       AkkaActor,
       AkkaStream,
       AkkaHttp,
