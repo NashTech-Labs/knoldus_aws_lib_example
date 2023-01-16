@@ -4,7 +4,6 @@ object Constants {
 
   final val ZERO = 0
   final val TEN = 10
-  final val EMPTY_ARRAY = "[]"
 
   final val LOCALSTACK = "http://localhost:4566"
 

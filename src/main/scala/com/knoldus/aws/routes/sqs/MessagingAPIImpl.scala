@@ -70,7 +70,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
               complete(
                 HttpResponse(
                   StatusCodes.OK,
-                  entity = HttpEntity(ContentTypes.`application/json`, queueSeq.toJson.prettyPrint)
+                  entity = HttpEntity(ContentTypes.`application/json`, QueueListResponse(queueSeq).toJson.prettyPrint)
                 )
               )
           }
@@ -332,7 +332,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
               )
             case Some(queue) =>
               messagingServiceImpl.deleteMessageFromQueue(
-                queue.url,
+                queue,
                 deleteMessageRequest.receiptHandle
               ) match {
                 case Left(_) =>
@@ -370,7 +370,7 @@ class MessagingAPIImpl(messagingServiceImpl: MessagingServiceImpl)
               )
             case Some(queue) =>
               messagingServiceImpl.deleteMultipleMessagesFromQueue(
-                queue.url,
+                queue,
                 deleteMessagesRequest.receiptHandles
               ) match {
                 case Left(_) =>

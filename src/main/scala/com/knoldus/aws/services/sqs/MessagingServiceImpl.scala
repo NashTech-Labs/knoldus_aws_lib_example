@@ -8,10 +8,11 @@ import com.knoldus.sqs.models.QueueType.QueueType
 import com.knoldus.sqs.models.{ Message, Queue, SQSConfig }
 import com.knoldus.sqs.services.SQSService
 import com.knoldus.sqs.services.SQSService.buildAmazonSQSClient
+import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.{ Failure, Success, Try }
 
-class MessagingServiceImpl(sqsConfig: SQSConfig) extends MessagingService {
+class MessagingServiceImpl(sqsConfig: SQSConfig) extends MessagingService with LazyLogging {
 
   implicit val sqsService: SQSService = new SQSService {
 
@@ -26,21 +27,38 @@ class MessagingServiceImpl(sqsConfig: SQSConfig) extends MessagingService {
 
   override def createNewQueue(queueName: String, queueType: QueueType): Either[Throwable, Queue] =
     sqsService.createQueue(queueName, queueType) match {
-      case Left(ex) => Left(ex)
-      case Right(value) => Right(value)
+      case Left(exception) =>
+        logger.info(s"Failed to create new ${queueType.toString} queue $queueName: ${exception.getMessage}")
+        Left(exception)
+      case Right(queue) =>
+        logger.info(s"Successfully created new ${queueType.toString} queue: ${queue.queueName}")
+        Right(queue)
     }
 
   override def deletingQueue(queue: Queue): Either[Throwable, String] =
     Try(sqsService.deleteQueue(queue)) match {
-      case Failure(exception) => Left(exception)
-      case Success(_) => Right(QUEUE_DELETED)
+      case Failure(exception) =>
+        logger.info(s"Failed to delete queue ${queue.queueName}: ${exception.getMessage}")
+        Left(exception)
+      case Success(_) =>
+        logger.info(s"Successfully deleted queue: ${queue.queueName}")
+        Right(QUEUE_DELETED)
     }
 
-  override def listingQueues: Seq[Queue] = sqsService.listQueues
+  override def listingQueues: Seq[Queue] = {
+    logger.info(s"Fetching list of queues.")
+    sqsService.listQueues
+  }
 
-  override def listingQueueNames: Seq[String] = sqsService.listQueuesByName
+  override def listingQueueNames: Seq[String] = {
+    logger.info(s"Fetching list of queues.")
+    sqsService.listQueuesByName
+  }
 
-  override def searchQueueByName(queueName: String): Option[Queue] = sqsService.findQueueByName(queueName)
+  override def searchQueueByName(queueName: String): Option[Queue] = {
+    logger.info(s"Searching $queueName in the list of queues.")
+    sqsService.findQueueByName(queueName)
+  }
 
   override def sendMessageToQueue(
     queue: Queue,
@@ -58,8 +76,14 @@ class MessagingServiceImpl(sqsConfig: SQSConfig) extends MessagingService {
         delaySeconds: Option[Int]
       )
     ) match {
-      case Failure(exception) => Left(exception)
-      case Success(_) => Right(MESSAGE_SENT)
+      case Failure(exception) =>
+        logger.info(
+          s"Failed to send message to ${queue.queueType.toString} queue ${queue.queueName}: ${exception.getMessage}"
+        )
+        Left(exception)
+      case Success(_) =>
+        logger.info(s"Successfully sent message to ${queue.queueType.toString} queue: ${queue.queueName}")
+        Right(MESSAGE_SENT)
     }
 
   override def sendMultipleMessagesToQueue(
@@ -78,8 +102,14 @@ class MessagingServiceImpl(sqsConfig: SQSConfig) extends MessagingService {
         delaySeconds: Option[Int]
       )
     ) match {
-      case Failure(exception) => Left(exception)
-      case Success(_) => Right(MESSAGES_SENT)
+      case Failure(exception) =>
+        logger.info(
+          s"Failed to send multiple messages to ${queue.queueType.toString} queue ${queue.queueName}: ${exception.getMessage}"
+        )
+        Left(exception)
+      case Success(_) =>
+        logger.info(s"Successfully sent multiple messages to ${queue.queueType.toString} queue: ${queue.queueName}")
+        Right(MESSAGES_SENT)
     }
 
   override def receiveMessage(
@@ -88,22 +118,31 @@ class MessagingServiceImpl(sqsConfig: SQSConfig) extends MessagingService {
     waitForSeconds: Int = ZERO
   ): Either[Throwable, Seq[Message]] =
     Try(sqsService.receiveMessages(queue, maxNumberOfMessages, waitForSeconds)) match {
-      case Failure(exception) => Left(exception)
-      case Success(value) => Right(value)
+      case Failure(exception) =>
+        logger.info(s"Failed to receive messages from queue ${queue.queueName}: ${exception.getMessage}")
+        Left(exception)
+      case Success(value) =>
+        logger.info(s"Successfully received messages from queue: ${queue.queueName}")
+        Right(value)
     }
 
-  override def deleteMessageFromQueue(queueUrl: String, receiptHandle: String): Either[Throwable, String] =
-    Try(sqsService.deleteMessage(queueUrl, receiptHandle)) match {
-      case Failure(exception) => Left(exception)
-      case Success(_) => Right(MESSAGE_DELETED)
+  override def deleteMessageFromQueue(queue: Queue, receiptHandle: String): Either[Throwable, String] =
+    Try(sqsService.deleteMessage(queue.url, receiptHandle)) match {
+      case Failure(exception) =>
+        logger.info(s"Failed to delete message from queue ${queue.queueName}: ${exception.getMessage}")
+        Left(exception)
+      case Success(_) =>
+        logger.info(s"Successfully deleted message from queue ${queue.queueName}.")
+        Right(MESSAGE_DELETED)
     }
 
-  override def deleteMultipleMessagesFromQueue(
-    queueUrl: String,
-    receiptHandle: Seq[String]
-  ): Either[Throwable, String] =
-    Try(sqsService.deleteMessages(queueUrl, receiptHandle)) match {
-      case Failure(exception) => Left(exception)
-      case Success(_) => Right(MESSAGES_DELETED)
+  override def deleteMultipleMessagesFromQueue(queue: Queue, receiptHandle: Seq[String]): Either[Throwable, String] =
+    Try(sqsService.deleteMessages(queue.url, receiptHandle)) match {
+      case Failure(exception) =>
+        logger.info(s"Failed to delete multiple messages from queue ${queue.queueName}: ${exception.getMessage}")
+        Left(exception)
+      case Success(_) =>
+        logger.info(s"Successfully deleted multiple messages from queue ${queue.queueName}.")
+        Right(MESSAGES_DELETED)
     }
 }

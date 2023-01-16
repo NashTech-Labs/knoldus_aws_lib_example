@@ -1,43 +1,29 @@
 package com.knoldus.aws.services.s3
 
-import com.amazonaws.auth.{ AWSCredentialsProvider, DefaultAWSCredentialsProviderChain }
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
-import com.amazonaws.services.s3.{ AmazonS3, AmazonS3ClientBuilder }
-import com.knoldus.aws.utils.Constants.{ BUCKET_DELETED, LOCALSTACK }
-import com.knoldus.common.aws.CredentialsLookup
+import com.amazonaws.services.s3.AmazonS3
+import com.knoldus.aws.utils.S3ClientBuilder.s3ClientBuilder
+import com.knoldus.aws.utils.Constants.BUCKET_DELETED
 import com.knoldus.s3.models.{ Bucket, Configuration }
 import com.knoldus.s3.services.S3Service
-import com.knoldus.s3.services.S3Service.buildAmazonS3Client
+import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.{ Failure, Success, Try }
 
-class S3BucketServiceImpl(s3config: Configuration) extends S3BucketService {
+class S3BucketServiceImpl(s3config: Configuration) extends S3BucketService with LazyLogging {
 
   implicit val s3Service: S3Service = new S3Service {
     override val config: Configuration = s3config
 
-    override val amazonS3Client: AmazonS3 =
-      if (s3config.s3Config.serviceEndpoint.equals(LOCALSTACK))
-        AmazonS3ClientBuilder
-          .standard()
-          .withEndpointConfiguration(
-            new EndpointConfiguration(s3config.s3Config.serviceEndpoint, s3config.awsConfig.awsRegion)
-          )
-          .withCredentials(new DefaultAWSCredentialsProviderChain())
-          .withPathStyleAccessEnabled(true)
-          .build()
-      else {
-        val credentials: AWSCredentialsProvider =
-          CredentialsLookup.getCredentialsProvider(s3config.awsConfig.awsAccessKey, s3config.awsConfig.awsSecretKey)
-        buildAmazonS3Client(s3config, credentials)
-      }
+    override val amazonS3Client: AmazonS3 = s3ClientBuilder(s3config)
   }
 
   override def createS3Bucket(bucketName: String): Either[Throwable, Bucket] =
     Try(s3Service.createBucket(bucketName, Some(s3Service.config.awsConfig.awsRegion))) match {
-      case Failure(ex) =>
-        Left(ex)
+      case Failure(exception) =>
+        logger.info(s"Failed to create S3 bucket $bucketName: ${exception.getMessage}")
+        Left(exception)
       case Success(bucket) =>
+        logger.info(s"Successfully created S3 bucket: ${bucket.name}")
         Right(bucket)
     }
 
@@ -48,20 +34,29 @@ class S3BucketServiceImpl(s3config: Configuration) extends S3BucketService {
       }
       bucket.destroy()
     } match {
-      case Failure(ex) => Left(ex)
-      case Success(_) => Right(BUCKET_DELETED)
+      case Failure(exception) =>
+        logger.info(s"Failed to delete S3 bucket ${bucket.name}: ${exception.getMessage}")
+        Left(exception)
+      case Success(_) =>
+        logger.info(s"Successfully deleted S3 bucket: ${bucket.name}")
+        Right(BUCKET_DELETED)
     }
 
   override def listAllBuckets: Either[Throwable, Option[Seq[Bucket]]] =
     Try(s3Service.getAllBuckets) match {
-      case Failure(ex) => Left(ex)
+      case Failure(exception) =>
+        logger.info(s"Failed to retrieve all S3 buckets: ${exception.getMessage}")
+        Left(exception)
       case Success(bucketSeq) =>
+        logger.info(s"Successfully retrieved all the S3 buckets.")
         if (bucketSeq.isEmpty) Right(None)
         else Right(Some(bucketSeq))
     }
 
-  override def searchS3Bucket(name: String): Option[Bucket] =
+  override def searchS3Bucket(name: String): Option[Bucket] = {
+    logger.info(s"Searching for bucket: $name in the list of S3 buckets.")
     s3Service.getBucketByName(name)
+  }
 
   override def retrieveBucketKeys(bucket: Bucket, prefix: Option[String]): Either[Throwable, Seq[String]] = {
     val tryToRetrieveBucketKeys = prefix match {
@@ -69,10 +64,12 @@ class S3BucketServiceImpl(s3config: Configuration) extends S3BucketService {
       case None => Try(s3Service.keys(bucket))
     }
     tryToRetrieveBucketKeys match {
-      case Failure(ex) =>
-        println(s"\n\n ${ex.getMessage}")
-        Left(ex)
-      case Success(keys) => Right(keys)
+      case Failure(exception) =>
+        logger.info(s"Failed to retrieve keys for S3 bucket ${bucket.name}: ${exception.getMessage}")
+        Left(exception)
+      case Success(keys) =>
+        logger.info(s"Successfully retrieved keys for S3 bucket: ${bucket.name}")
+        Right(keys)
     }
   }
 }

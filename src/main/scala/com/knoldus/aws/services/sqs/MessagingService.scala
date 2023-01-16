@@ -33,8 +33,8 @@ trait MessagingService {
 
   def receiveMessage(queue: Queue, maxNumberOfMessages: Int, waitForSeconds: Int): Either[Throwable, Seq[Message]]
 
-  def deleteMessageFromQueue(queueUrl: String, receiptHandle: String): Either[Throwable, String]
+  def deleteMessageFromQueue(queue: Queue, receiptHandle: String): Either[Throwable, String]
 
-  def deleteMultipleMessagesFromQueue(queueUrl: String, receiptHandle: Seq[String]): Either[Throwable, String]
+  def deleteMultipleMessagesFromQueue(queue: Queue, receiptHandle: Seq[String]): Either[Throwable, String]
 
 }
