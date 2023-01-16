@@ -5,30 +5,48 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient
 import software.amazon.awssdk.services.kinesis.KinesisAsyncClient
-import software.amazon.kinesis.common.{ConfigsBuilder, KinesisClientUtil}
+import software.amazon.kinesis.common.{ ConfigsBuilder, KinesisClientUtil }
 import software.amazon.kinesis.coordinator.Scheduler
 
-import java.io.{BufferedReader, IOException, InputStreamReader}
+import java.io.{ BufferedReader, IOException, InputStreamReader }
 import java.util.UUID
-import java.util.concurrent.{ExecutionException, TimeUnit, TimeoutException}
+import java.util.concurrent.{ ExecutionException, TimeUnit, TimeoutException }
 
-class BankAccountEventConsumer(streamName: String, applicationName: String, region: Region, tableName: String) extends LazyLogging{
+class BankAccountEventConsumer(streamName: String, applicationName: String, region: Region, tableName: String)
+    extends LazyLogging {
 
-  private val kinesisClient: KinesisAsyncClient = KinesisClientUtil.createKinesisAsyncClient(KinesisAsyncClient.builder.region(region))
+  private val kinesisClient: KinesisAsyncClient =
+    KinesisClientUtil.createKinesisAsyncClient(KinesisAsyncClient.builder.region(region))
 
-  private def run(): Unit = {
+  def run(): Unit = {
 
     val dynamoClient = DynamoDbAsyncClient.builder.region(region).build
     val cloudWatchClient = CloudWatchAsyncClient.builder.region(region).build
-    val configsBuilder = new ConfigsBuilder(streamName, applicationName, kinesisClient, dynamoClient, cloudWatchClient, UUID.randomUUID.toString, new BankAccountEventProcessorFactory(tableName))
+    val configsBuilder = new ConfigsBuilder(
+      streamName,
+      applicationName,
+      kinesisClient,
+      dynamoClient,
+      cloudWatchClient,
+      UUID.randomUUID.toString,
+      new BankAccountEventProcessorFactory(tableName)
+    )
 
-    val scheduler = new Scheduler(configsBuilder.checkpointConfig, configsBuilder.coordinatorConfig, configsBuilder.leaseManagementConfig, configsBuilder.lifecycleConfig, configsBuilder.metricsConfig, configsBuilder.processorConfig, configsBuilder.retrievalConfig)
+    val scheduler = new Scheduler(
+      configsBuilder.checkpointConfig,
+      configsBuilder.coordinatorConfig,
+      configsBuilder.leaseManagementConfig,
+      configsBuilder.lifecycleConfig,
+      configsBuilder.metricsConfig,
+      configsBuilder.processorConfig,
+      configsBuilder.retrievalConfig
+    )
 
     val schedulerThread = new Thread(scheduler)
     schedulerThread.setDaemon(true)
     schedulerThread.start()
 
-    System.out.println("Press enter to shutdown the consumer")
+    println("Press enter to shutdown the consumer")
     val reader = new BufferedReader(new InputStreamReader(System.in))
 
     try reader.readLine

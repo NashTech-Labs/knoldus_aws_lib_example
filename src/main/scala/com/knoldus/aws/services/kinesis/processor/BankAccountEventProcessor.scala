@@ -1,22 +1,55 @@
 package com.knoldus.aws.services.kinesis.processor
 
-import software.amazon.kinesis.lifecycle.events.{
-  InitializationInput,
-  LeaseLostInput,
-  ProcessRecordsInput,
-  ShardEndedInput,
-  ShutdownRequestedInput
-}
+import com.typesafe.scalalogging.LazyLogging
+import software.amazon.kinesis.lifecycle.events._
 import software.amazon.kinesis.processor.ShardRecordProcessor
+import software.amazon.kinesis.retrieval.KinesisClientRecord
 
-class BankAccountEventProcessor(tableName: String) extends ShardRecordProcessor {
-  override def initialize(initializationInput: InitializationInput): Unit = ???
+import java.nio.charset.StandardCharsets
 
-  override def processRecords(processRecordsInput: ProcessRecordsInput): Unit = ???
+class BankAccountEventProcessor(tableName: String) extends ShardRecordProcessor with LazyLogging {
 
-  override def leaseLost(leaseLostInput: LeaseLostInput): Unit = ???
+  override def initialize(initializationInput: InitializationInput): Unit = {
+    logger.info(s"Initializing record processor for shard: ${initializationInput.shardId}")
+    logger.info(s"Initializing @ Sequence: ${initializationInput.extendedSequenceNumber.toString}")
+  }
 
-  override def shardEnded(shardEndedInput: ShardEndedInput): Unit = ???
+  override def processRecords(processRecordsInput: ProcessRecordsInput): Unit =
+    try {
+      logger.info("Processing " + processRecordsInput.records.size + " record(s)")
+      processRecordsInput.records.forEach((r: KinesisClientRecord) => processRecord(r))
+    } catch {
+      case _: Throwable =>
+        logger.error("Caught throwable while processing records. Aborting.")
+        Runtime.getRuntime.halt(1)
+    }
 
-  override def shutdownRequested(shutdownRequestedInput: ShutdownRequestedInput): Unit = ???
+  private def processRecord(record: KinesisClientRecord): Unit =
+    logger.info(
+      s"Processing record pk: ${record.partitionKey()} -- Data: ${StandardCharsets.UTF_8.decode(record.data).toString}"
+    )
+
+  // ToDo: Add events processing logic + Update the DB
+
+  override def leaseLost(leaseLostInput: LeaseLostInput): Unit =
+    logger.info("Lost lease, so terminating.")
+
+  override def shardEnded(shardEndedInput: ShardEndedInput): Unit =
+    try {
+      // Important to checkpoint after reaching end of shard, so to start processing data from child shards.
+      logger.info("Reached shard end checkpointing.")
+      shardEndedInput.checkpointer.checkpoint()
+    } catch {
+      case e: Throwable =>
+        logger.error("Exception while checkpointing at shard end. Giving up.", e)
+    }
+
+  override def shutdownRequested(shutdownRequestedInput: ShutdownRequestedInput): Unit =
+    try {
+      logger.info("Scheduler is shutting down, checkpointing.")
+      shutdownRequestedInput.checkpointer().checkpoint()
+    } catch {
+      case e: Throwable =>
+        logger.error("Exception while checkpointing at requested shutdown. Giving up.", e)
+    }
 }
