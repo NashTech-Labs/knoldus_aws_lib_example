@@ -11,8 +11,8 @@ object Dependencies {
     // General
     val PlayJsonVersion = "2.9.3"
     val TypeSafeConfigVersion = "1.4.2"
-    val PureConfigVersion = "0.17.2"
     val AwsJavaSDKVersion = "1.11.490"
+    val AkkaVersion = "2.7.0"
     val AkkaHttpVersion = "10.4.0"
     val AkkaHttpCorsVersion = "1.1.3"
 
@@ -32,9 +32,12 @@ object Dependencies {
 
   object Main {
     val PlayJson = "com.typesafe.play" %% "play-json" % PlayJsonVersion
-    val PureConfig = "com.github.pureconfig" %% "pureconfig" % PureConfigVersion
     val ScalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % ScalaLoggingVersion
+    lazy val macWire = "com.softwaremill.macwire" %% "macros" % "2.5.7"
+    val AkkaActor = "com.typesafe.akka" %% "akka-actor" % AkkaVersion
+    val AkkaStream = "com.typesafe.akka" %% "akka-stream" % AkkaVersion
     val AkkaHttp = "com.typesafe.akka" %% "akka-http" % AkkaHttpVersion
+    val AkkaHttpSpray = "com.typesafe.akka" %% "akka-http-spray-json" % AkkaHttpVersion
     val AkkaHttpCors =  "ch.megard" %% "akka-http-cors" % AkkaHttpCorsVersion
     val AkkaHttpTestKit = "com.typesafe.akka" % "akka-http-testkit_2.13" % AkkaHttpVersion
     val Dynamo = "knoldus" % "dynamodb-service_2.13" % DynamoDbVersion
@@ -45,10 +48,17 @@ object Dependencies {
     val All: Seq[ModuleID] = Seq(
       ScalaLogging,
       PlayJson,
-      PureConfig,
+      macWire,
+      AkkaActor,
+      AkkaStream,
       AkkaHttp,
+      AkkaHttpSpray,
       AkkaHttpCors,
-      AkkaHttpTestKit
+      AkkaHttpTestKit,
+      Dynamo,
+      Kinesis,
+      s3,
+      sqs
     )
   }
 
