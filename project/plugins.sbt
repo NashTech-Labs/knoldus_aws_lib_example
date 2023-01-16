@@ -13,3 +13,5 @@ addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "1.0.0")
 addSbtPlugin("nl.codestar" % "sbt-findsecbugs" % "0.16")
 
 addSbtPlugin("com.localytics" % "sbt-dynamodb" % "2.0.2")
+
+addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.4")

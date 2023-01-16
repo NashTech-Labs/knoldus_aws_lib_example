@@ -1,7 +1,14 @@
 import Dependencies._
 import sbt.Test
 
+enablePlugins(
+    JavaAppPackaging,
+    DockerPlugin
+)
+
 Compile / mainClass := Some("com.knoldus.aws.bootstrap.DriverApp")
+Docker / packageName := "knoldus/aws-lib-examples"
+dockerExposedPorts ++= Seq(8000)
 
 lazy val KnoldusAwsLibSamples = Project("knoldus-aws-lib-examples", file("."))
   .settings(

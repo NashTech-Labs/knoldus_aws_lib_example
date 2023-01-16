@@ -1,6 +1,7 @@
 package com.knoldus.aws.utils
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import com.knoldus.aws.models.dynamodb.{ Question, QuestionUpdate }
 import spray.json._
 import com.knoldus.aws.models.s3._
 import com.knoldus.aws.models.sqs._
@@ -85,5 +86,8 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val copyObjectResponseFormat: RootJsonFormat[CopyObjectResponse] = jsonFormat3(
     CopyObjectResponse.apply
   )
+
+  implicit val questionFormat: RootJsonFormat[Question] = jsonFormat4(Question.apply)
+  implicit val questionUpdateFormat: RootJsonFormat[QuestionUpdate] = jsonFormat2(QuestionUpdate.apply)
 
 }
