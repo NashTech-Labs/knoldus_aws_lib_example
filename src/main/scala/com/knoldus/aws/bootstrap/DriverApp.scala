@@ -46,24 +46,25 @@ object DriverApp extends App with LazyLogging {
         case Failure(_) => Future.successful(Done)
       }
     }
+
+    /**
+      * Specific to Bank Account Event Consumer and Processor
+      */
+    val streamName = conf.getString("data-stream-name")
+    val consumerApplicationName = conf.getString("consumer-application-name")
+    val region = Region.of(conf.getString("region"))
+    val bankAccountTableName = conf.getString("bank-account-table-name")
+
+    val bankAccountEventConsumer =
+      new BankAccountEventConsumer(streamName, consumerApplicationName, region, bankAccountTableName)
+
+    // starting the consumer
+    bankAccountEventConsumer.run()
+
   } catch {
     case e: Throwable =>
       Await.result(shutdown(e), 30.seconds)
   }
-
-  /**
-   * Bank Account Consumer and Processor specific
-   */
-  val streamName = conf.getString("data-stream-name")
-  val consumerApplicationName = conf.getString("consumer-application-name")
-  val region = Region.of(conf.getString("region"))
-  val bankAccountTableName = conf.getString("bank-account-table-name")
-
-  val bankAccountEventConsumer =
-    new BankAccountEventConsumer(streamName, consumerApplicationName, region, bankAccountTableName)
-
-  // starting the consumer
-  bankAccountEventConsumer.run()
 
   private def shutdown(e: Throwable): Future[Done] = {
     logger.error("Error starting application:")
