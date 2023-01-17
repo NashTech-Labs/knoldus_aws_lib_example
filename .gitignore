@@ -3,3 +3,4 @@
 .bsp/
 target/
 /volume
+.env-knoldus-aws-sample-app
