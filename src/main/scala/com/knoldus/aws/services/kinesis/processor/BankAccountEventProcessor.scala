@@ -24,12 +24,12 @@ class BankAccountEventProcessor(tableName: String) extends ShardRecordProcessor 
         Runtime.getRuntime.halt(1)
     }
 
-  private def processRecord(record: KinesisClientRecord): Unit = {
+  private def processRecord(record: KinesisClientRecord): Unit =
     // ToDo: Add events processing logic + Update the DB
     logger.info(
       s"Processing record pk: ${record.partitionKey()} -- Data: ${StandardCharsets.UTF_8.decode(record.data).toString}"
     )
-  }
+
   override def leaseLost(leaseLostInput: LeaseLostInput): Unit =
     logger.info("Lost lease, so terminating.")
 
