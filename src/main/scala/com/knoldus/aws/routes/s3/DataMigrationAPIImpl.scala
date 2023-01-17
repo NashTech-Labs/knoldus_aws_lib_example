@@ -102,7 +102,7 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                       s3Object.getStorageClass,
                       s3Object.getETag,
                       s3Object.getLastModified.toString,
-                      s3Object.getOwner.toString
+                      s3Object.getOwner.getDisplayName
                     )
                     complete(
                       HttpResponse(
@@ -258,7 +258,7 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                           obj.getStorageClass,
                           obj.getETag,
                           obj.getLastModified.toString,
-                          obj.getOwner.toString
+                          obj.getOwner.getDisplayName
                         )
                       }
                       complete(
