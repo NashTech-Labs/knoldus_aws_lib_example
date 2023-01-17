@@ -1,6 +1,6 @@
 package com.knoldus.aws.services.kinesis.processor
 
-import com.knoldus.aws.models.kinesis.BankAccountEvent
+import com.knoldus.aws.models.kinesis.{BankAccount, BankAccountEvent, CreateBankAccountEvent, UpdateBankAccountEvent}
 import com.typesafe.scalalogging.LazyLogging
 import play.api.libs.json.Json
 import software.amazon.kinesis.lifecycle.events._
@@ -27,7 +27,6 @@ class BankAccountEventProcessor(tableName: String) extends ShardRecordProcessor 
     }
 
   private def processRecord(record: KinesisClientRecord): Unit = {
-    // ToDo: Add events processing logic + Update the DB
     val eventString = StandardCharsets.UTF_8.decode(record.data).toString
     logger.info(
       s"Processing record pk: ${record.partitionKey()} -- Data: $eventString"
@@ -35,7 +34,24 @@ class BankAccountEventProcessor(tableName: String) extends ShardRecordProcessor 
     val eventJson = Json.parse(eventString)
     val event = eventJson.as[BankAccountEvent]
 
-//    println(s"@@@@@@@@@@@@ $event")
+    event match {
+      case CreateBankAccountEvent(_, accountNumber, accountOwner, accountType, securityCode, balance) =>
+        val newBankAccount = BankAccount(accountNumber, accountOwner, accountType, securityCode, balance)
+        logger.info(s"Creating a new $accountType bank account for $accountOwner")
+
+      // ToDO - add the newly created bank account record in db
+      case UpdateBankAccountEvent(_, accountNumber, updateType, amount) =>
+        updateType match {
+          case "credit" =>
+            logger.info(s"Crediting bank account $accountNumber with amount $amount")
+
+            // ToDO - update the credited amount in bank account db record
+          case "debit" =>
+            logger.info(s"Debiting bank account $accountNumber with amount $amount")
+
+          // ToDO - update the debited amount in bank account db record
+        }
+    }
 
   }
 
