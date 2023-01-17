@@ -18,6 +18,7 @@ class BankAccountEventGenerator(bankAccountEventPublisher: BankAccountEventPubli
   def createBankAccountEvent(bankAccountDetails: BankAccountCreationEventRequest): Future[BankAccountEvent] = {
     val newAccountNumber = UUID.randomUUID()
     val bankAccountEvent = CreateBankAccountEvent(
+      "create",
       newAccountNumber,
       bankAccountDetails.accountOwner,
       bankAccountDetails.accountType,
@@ -30,14 +31,14 @@ class BankAccountEventGenerator(bankAccountEventPublisher: BankAccountEventPubli
   }
 
   def creditBankAccountEvent(accountNumber: UUID, amountToCredit: Double): Future[BankAccountEvent] = {
-    val bankAccountEvent = UpdateBankAccountEvent(accountNumber, "Credit", amountToCredit)
+    val bankAccountEvent = UpdateBankAccountEvent("update", accountNumber, "credit", amountToCredit)
     val publishEventResultFuture = bankAccountEventPublisher.publishBankAccountEvent(stream, bankAccountEvent)
     logger.info(s"Generated an event to credit a bank account")
     checkAndGetPublishedEvent(publishEventResultFuture, bankAccountEvent)
   }
 
   def debitBankAccountEvent(accountNumber: UUID, amountToDebit: Double): Future[BankAccountEvent] = {
-    val bankAccountEvent = UpdateBankAccountEvent(accountNumber, "Debit", amountToDebit)
+    val bankAccountEvent = UpdateBankAccountEvent("update", accountNumber, "debit", amountToDebit)
     val publishEventResultFuture = bankAccountEventPublisher.publishBankAccountEvent(stream, bankAccountEvent)
     logger.info(s"Generated an event to debit a bank account")
     checkAndGetPublishedEvent(publishEventResultFuture, bankAccountEvent)

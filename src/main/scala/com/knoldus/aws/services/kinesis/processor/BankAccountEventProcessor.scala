@@ -1,6 +1,8 @@
 package com.knoldus.aws.services.kinesis.processor
 
+import com.knoldus.aws.models.kinesis.BankAccountEvent
 import com.typesafe.scalalogging.LazyLogging
+import play.api.libs.json.Json
 import software.amazon.kinesis.lifecycle.events._
 import software.amazon.kinesis.processor.ShardRecordProcessor
 import software.amazon.kinesis.retrieval.KinesisClientRecord
@@ -24,11 +26,18 @@ class BankAccountEventProcessor(tableName: String) extends ShardRecordProcessor 
         Runtime.getRuntime.halt(1)
     }
 
-  private def processRecord(record: KinesisClientRecord): Unit =
+  private def processRecord(record: KinesisClientRecord): Unit = {
     // ToDo: Add events processing logic + Update the DB
+    val eventString = StandardCharsets.UTF_8.decode(record.data).toString
     logger.info(
-      s"Processing record pk: ${record.partitionKey()} -- Data: ${StandardCharsets.UTF_8.decode(record.data).toString}"
+      s"Processing record pk: ${record.partitionKey()} -- Data: $eventString"
     )
+    val eventJson = Json.parse(eventString)
+    val event = eventJson.as[BankAccountEvent]
+
+//    println(s"@@@@@@@@@@@@ $event")
+
+  }
 
   override def leaseLost(leaseLostInput: LeaseLostInput): Unit =
     logger.info("Lost lease, so terminating.")

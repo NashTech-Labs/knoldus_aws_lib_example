@@ -25,11 +25,11 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol with UUIDPro
     UpdateBankAccountEventRequest.apply
   )
 
-  implicit val createBankAccountEventFormat: RootJsonFormat[CreateBankAccountEvent] = jsonFormat5(
+  implicit val createBankAccountEventFormat: RootJsonFormat[CreateBankAccountEvent] = jsonFormat6(
     CreateBankAccountEvent.apply
   )
 
-  implicit val updateBankAccountEventFormat: RootJsonFormat[UpdateBankAccountEvent] = jsonFormat3(
+  implicit val updateBankAccountEventFormat: RootJsonFormat[UpdateBankAccountEvent] = jsonFormat4(
     UpdateBankAccountEvent.apply
   )
 
