@@ -2,3 +2,4 @@
 .idea/
 .bsp/
 target/
+.env-knoldus-aws-sample-app

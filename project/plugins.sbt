@@ -15,3 +15,5 @@ addSbtPlugin("nl.codestar" % "sbt-findsecbugs" % "0.16")
 addSbtPlugin("com.localytics" % "sbt-dynamodb" % "2.0.2")
 
 addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.4")
+
+addSbtPlugin("au.com.onegeek" %% "sbt-dotenv" % "2.1.146")
