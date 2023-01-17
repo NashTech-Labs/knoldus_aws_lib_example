@@ -8,7 +8,7 @@ trait DataMigrationService {
 
   def uploadFileToS3(bucket: Bucket, file: File, key: String): Either[Throwable, PutObjectResult]
 
-  def retrieveFile(bucket: Bucket, key: String, versionId: Option[String]): Either[Throwable, S3Object]
+  def retrieveFile(bucket: Bucket, key: String, versionId: Option[String]): Either[String, S3ObjectSummary]
 
   def copyFile(
     sourceBucketName: String,

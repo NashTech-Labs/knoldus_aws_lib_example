@@ -87,20 +87,29 @@ class DataMigrationAPIImpl(dataMigrationServiceImpl: DataMigrationServiceImpl, s
                   fileRetrieveRequest.key,
                   fileRetrieveRequest.versionId
                 ) match {
-                  case Left(_) =>
+                  case Left(msg) =>
                     complete(
                       HttpResponse(
                         StatusCodes.NotFound,
-                        entity = HttpEntity(ContentTypes.`application/json`, OBJECT_RETRIEVAL_EXCEPTION)
+                        entity = HttpEntity(ContentTypes.`application/json`, msg)
                       )
                     )
                   case Right(s3Object) =>
+                    val objectSummary = S3ObjectSummariesResponse(
+                      s3Object.bucket.name,
+                      s3Object.getKey,
+                      s3Object.getSize,
+                      s3Object.getStorageClass,
+                      s3Object.getETag,
+                      s3Object.getLastModified.toString,
+                      s3Object.getOwner.toString
+                    )
                     complete(
                       HttpResponse(
                         StatusCodes.OK,
                         entity = HttpEntity(
                           ContentTypes.`application/json`,
-                          S3ObjectResponse(s3Object.bucket.name, s3Object.key).toJson.prettyPrint
+                          objectSummary.toJson.prettyPrint
                         )
                       )
                     )

@@ -1,6 +1,7 @@
 package com.knoldus.aws.services.s3
 
 import com.amazonaws.services.s3.AmazonS3
+import com.knoldus.aws.utils.Constants.OBJECT_RETRIEVAL_EXCEPTION
 import com.knoldus.aws.utils.S3ClientBuilder.s3ClientBuilder
 import com.knoldus.s3.models._
 import com.knoldus.s3.services.S3Service
@@ -27,10 +28,23 @@ class DataMigrationServiceImpl(s3config: Configuration) extends DataMigrationSer
         Right(putObjectResult)
     }
 
-  override def retrieveFile(bucket: Bucket, key: String, versionId: Option[String]): Either[Throwable, S3Object] = {
-    logger.info(s"Retrieving object from the bucket ${bucket.name} with the key $key")
-    s3Service.getS3Object(bucket, key, versionId)
-  }
+  override def retrieveFile(bucket: Bucket, key: String, versionId: Option[String]): Either[String, S3ObjectSummary] =
+    s3Service.getS3Object(bucket, key, versionId) match {
+      case Left(exception) =>
+        logger.info(
+          s"Failed to retrieve object from the bucket ${bucket.name} with the key $key : ${exception.getMessage}"
+        )
+        Left(OBJECT_RETRIEVAL_EXCEPTION)
+      case Right(s3Object) =>
+        getAllObjectSummaries(s3Object.bucket, s3Object.key).headOption match {
+          case Some(s3ObjectSummary) =>
+            logger.info(s"Successfully retrieved object summary from the bucket ${bucket.name} with the key $key")
+            Right(s3ObjectSummary)
+          case None =>
+            logger.info(s"Failed to retrieve object summary from the bucket ${bucket.name} with the key $key")
+            Left(OBJECT_RETRIEVAL_EXCEPTION)
+        }
+    }
 
   override def copyFile(
     sourceBucketName: String,

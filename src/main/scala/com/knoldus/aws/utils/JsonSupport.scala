@@ -23,7 +23,7 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
     S3BucketKeysResponse.apply
   )
 
-  implicit val retrieveObjectRequestFormat: RootJsonFormat[RetrieveObjectRequest] = jsonFormat4(
+  implicit val retrieveObjectRequestFormat: RootJsonFormat[RetrieveObjectRequest] = jsonFormat3(
     RetrieveObjectRequest.apply
   )
 

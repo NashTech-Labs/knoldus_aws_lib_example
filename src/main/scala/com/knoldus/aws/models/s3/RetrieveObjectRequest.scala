@@ -2,7 +2,7 @@ package com.knoldus.aws.models.s3
 
 import play.api.libs.json.{ Format, JsSuccess, JsValue, Json }
 
-case class RetrieveObjectRequest(bucketName: String, fileName: String, key: String, versionId: Option[String])
+case class RetrieveObjectRequest(bucketName: String, key: String, versionId: Option[String])
 
 object RetrieveObjectRequest {
 
