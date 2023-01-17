@@ -11,11 +11,11 @@ import com.knoldus.s3.services.S3Service.buildAmazonS3Client
 object S3ClientBuilder {
 
   def s3ClientBuilder(s3config: Configuration): AmazonS3 =
-    if (s3config.s3Config.serviceEndpoint.equals(LOCALSTACK))
+    if (s3config.s3Config.simpleStorageServiceEndpoint.equals(LOCALSTACK))
       AmazonS3ClientBuilder
         .standard()
         .withEndpointConfiguration(
-          new EndpointConfiguration(s3config.s3Config.serviceEndpoint, s3config.awsConfig.awsRegion)
+          new EndpointConfiguration(s3config.s3Config.simpleStorageServiceEndpoint, s3config.awsConfig.awsRegion)
         )
         .withCredentials(new DefaultAWSCredentialsProviderChain())
         .withPathStyleAccessEnabled(true)
