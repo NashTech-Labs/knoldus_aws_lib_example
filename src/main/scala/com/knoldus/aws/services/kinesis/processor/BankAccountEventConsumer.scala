@@ -1,5 +1,6 @@
 package com.knoldus.aws.services.kinesis.processor
 
+import com.knoldus.aws.models.kinesis.BankAccountTable
 import com.typesafe.scalalogging.LazyLogging
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient
@@ -12,8 +13,12 @@ import java.io.{ BufferedReader, IOException, InputStreamReader }
 import java.util.UUID
 import java.util.concurrent.{ ExecutionException, TimeUnit, TimeoutException }
 
-class BankAccountEventConsumer(streamName: String, applicationName: String, region: Region, tableName: String)
-    extends LazyLogging {
+class BankAccountEventConsumer(
+  streamName: String,
+  applicationName: String,
+  region: Region,
+  bankAccountTable: BankAccountTable
+) extends LazyLogging {
 
   private val kinesisClient: KinesisAsyncClient =
     KinesisClientUtil.createKinesisAsyncClient(KinesisAsyncClient.builder.region(region))
@@ -29,7 +34,7 @@ class BankAccountEventConsumer(streamName: String, applicationName: String, regi
       dynamoClient,
       cloudWatchClient,
       UUID.randomUUID.toString,
-      new BankAccountEventProcessorFactory(tableName)
+      new BankAccountEventProcessorFactory(bankAccountTable)
     )
 
     val scheduler = new Scheduler(

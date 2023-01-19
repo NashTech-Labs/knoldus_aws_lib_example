@@ -1,6 +1,12 @@
 package com.knoldus.aws.services.kinesis.processor
 
-import com.knoldus.aws.models.kinesis.{BankAccount, BankAccountEvent, CreateBankAccountEvent, UpdateBankAccountEvent}
+import com.knoldus.aws.models.kinesis.{
+  BankAccount,
+  BankAccountEvent,
+  BankAccountTable,
+  CreateBankAccountEvent,
+  UpdateBankAccountEvent
+}
 import com.typesafe.scalalogging.LazyLogging
 import play.api.libs.json.Json
 import software.amazon.kinesis.lifecycle.events._
@@ -9,7 +15,7 @@ import software.amazon.kinesis.retrieval.KinesisClientRecord
 
 import java.nio.charset.StandardCharsets
 
-class BankAccountEventProcessor(tableName: String) extends ShardRecordProcessor with LazyLogging {
+class BankAccountEventProcessor(bankAccountTable: BankAccountTable) extends ShardRecordProcessor with LazyLogging {
 
   override def initialize(initializationInput: InitializationInput): Unit = {
     logger.info(s"Initializing record processor for shard: ${initializationInput.shardId}")
@@ -45,7 +51,7 @@ class BankAccountEventProcessor(tableName: String) extends ShardRecordProcessor 
           case "credit" =>
             logger.info(s"Crediting bank account $accountNumber with amount $amount")
 
-            // ToDO - update the credited amount in bank account db record
+          // ToDO - update the credited amount in bank account db record
           case "debit" =>
             logger.info(s"Debiting bank account $accountNumber with amount $amount")
 

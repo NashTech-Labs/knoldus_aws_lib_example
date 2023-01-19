@@ -5,6 +5,7 @@ import akka.actor.CoordinatedShutdown.Reason
 import akka.actor.{ ActorSystem, CoordinatedShutdown }
 import akka.http.scaladsl.Http
 import akka.stream.Materializer
+import com.knoldus.aws.models.kinesis.BankAccountTable
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
 
@@ -52,11 +53,13 @@ object DriverApp extends App with LazyLogging {
       */
     val streamName = conf.getString("data-stream-name")
     val consumerApplicationName = conf.getString("consumer-application-name")
-    val region = Region.of(conf.getString("region"))
+    val region = Region.of(conf.getString("aws-region"))
     val bankAccountTableName = conf.getString("bank-account-table-name")
 
+    val bankAccountTable = BankAccountTable(bankAccountTableName)
+
     val bankAccountEventConsumer =
-      new BankAccountEventConsumer(streamName, consumerApplicationName, region, bankAccountTableName)
+      new BankAccountEventConsumer(streamName, consumerApplicationName, region, bankAccountTable)
 
     // starting the consumer
     bankAccountEventConsumer.run()
