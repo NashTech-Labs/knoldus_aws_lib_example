@@ -53,16 +53,16 @@ class BankAccountEventProcessor(bankAccountTable: BankAccountTable) extends Shar
       case UpdateBankAccountEvent(_, accountNumber, updateType, amount) =>
         updateType match {
           case "credit" =>
-            logger.info(s"Crediting bank account $accountNumber with amount $amount")
-
+            logger.info(s"Getting bank account $accountNumber")
             bankAccountTable.retrieve("BankAccount", accountNumber.toString) match {
-              case Some(bankAccountDBRecord) =>
-                BankAccount(Json.parse(bankAccountDBRecord.json)) match {
+              case Some(bankAccountRecord) =>
+                logger.info(s"Crediting bank account $accountNumber with amount $amount")
+                BankAccount(Json.parse(bankAccountRecord.json)) match {
                   case Left(errorMsg) => logger.error(s"Bank account not credited, reason: $errorMsg")
                   case Right(bankAccount) =>
                     val updatedAccountBalance = bankAccount.balance + amount
-                    val updatedBankAccountDBRecord = bankAccount.copy(balance = updatedAccountBalance).record
-                    bankAccountTable.update("BankAccount", accountNumber.toString, updatedBankAccountDBRecord) match {
+                    val updatedBankAccountRecord = bankAccount.copy(balance = updatedAccountBalance).record
+                    bankAccountTable.update("BankAccount", accountNumber.toString, updatedBankAccountRecord) match {
                       case Left(_) => logger.error(s"Failed to credit bank account")
                       case Right(_) =>
                         logger.info(s"Bank account $accountNumber successfully credited with amount $amount")
@@ -71,9 +71,25 @@ class BankAccountEventProcessor(bankAccountTable: BankAccountTable) extends Shar
               case None => logger.error(s"Bank account $accountNumber not exist")
             }
           case "debit" =>
-            logger.info(s"Debiting bank account $accountNumber with amount $amount")
-
-          // ToDO - update the debited amount in bank account db record
+            logger.info(s"Getting bank account $accountNumber")
+            bankAccountTable.retrieve("BankAccount", accountNumber.toString) match {
+              case Some(bankAccountRecord) =>
+                logger.info(s"Debiting bank account $accountNumber with amount $amount")
+                BankAccount(Json.parse(bankAccountRecord.json)) match {
+                  case Left(errorMsg) => logger.error(s"Bank account not debited, reason: $errorMsg")
+                  case Right(bankAccount) =>
+                    if (bankAccount.balance >= amount) {
+                      val updatedAccountBalance = bankAccount.balance - amount
+                      val updatedBankAccountRecord = bankAccount.copy(balance = updatedAccountBalance).record
+                      bankAccountTable.update("BankAccount", accountNumber.toString, updatedBankAccountRecord) match {
+                        case Left(_) => logger.error(s"Failed to debit bank account")
+                        case Right(_) =>
+                          logger.info(s"Bank account $accountNumber successfully debited with amount $amount")
+                      }
+                    } else logger.error(s"Bank account $accountNumber can not be debited due to insufficient balance")
+                }
+              case None => logger.error(s"Bank account $accountNumber not exist")
+            }
         }
     }
 

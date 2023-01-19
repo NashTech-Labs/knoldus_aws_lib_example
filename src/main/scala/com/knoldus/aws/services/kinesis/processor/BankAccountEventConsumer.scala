@@ -51,7 +51,7 @@ class BankAccountEventConsumer(
     schedulerThread.setDaemon(true)
     schedulerThread.start()
 
-    println("Press enter to shutdown the consumer")
+    println("Press enter to shutdown the scheduler")
     val reader = new BufferedReader(new InputStreamReader(System.in))
 
     try reader.readLine
