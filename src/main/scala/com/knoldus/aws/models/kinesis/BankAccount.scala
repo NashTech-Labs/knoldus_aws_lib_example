@@ -13,9 +13,9 @@ case class BankAccount(
   securityCode: String,
   balance: Double
 ) extends DynamoItem {
-  override def partitionKey: String = accountType
+  override def partitionKey: String = this.productPrefix
 
-  override def sortKey: String = accountOwner
+  override def sortKey: String = accountNumber.toString
 
   override def json: String = Json.stringify(Json.toJson(this))
 
@@ -28,6 +28,6 @@ object BankAccount {
   def apply(json: JsValue): Either[String, BankAccount] =
     json.validate[BankAccount] match {
       case JsSuccess(user, _) => Right(user)
-      case e => Left(s"Failed to deserialize Question $e")
+      case e => Left(s"Failed to deserialize Bank Account, $e")
     }
 }

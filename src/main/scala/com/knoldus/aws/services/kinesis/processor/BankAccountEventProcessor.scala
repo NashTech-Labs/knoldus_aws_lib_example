@@ -55,7 +55,21 @@ class BankAccountEventProcessor(bankAccountTable: BankAccountTable) extends Shar
           case "credit" =>
             logger.info(s"Crediting bank account $accountNumber with amount $amount")
 
-          // ToDO - update the credited amount in bank account db record
+            bankAccountTable.retrieve("BankAccount", accountNumber.toString) match {
+              case Some(bankAccountDBRecord) =>
+                BankAccount(Json.parse(bankAccountDBRecord.json)) match {
+                  case Left(errorMsg) => logger.error(s"Bank account not credited, reason: $errorMsg")
+                  case Right(bankAccount) =>
+                    val updatedAccountBalance = bankAccount.balance + amount
+                    val updatedBankAccountDBRecord = bankAccount.copy(balance = updatedAccountBalance).record
+                    bankAccountTable.update("BankAccount", accountNumber.toString, updatedBankAccountDBRecord) match {
+                      case Left(_) => logger.error(s"Failed to credit bank account")
+                      case Right(_) =>
+                        logger.info(s"Bank account $accountNumber successfully credited with amount $amount")
+                    }
+                }
+              case None => logger.error(s"Bank account $accountNumber not exist")
+            }
           case "debit" =>
             logger.info(s"Debiting bank account $accountNumber with amount $amount")
 
