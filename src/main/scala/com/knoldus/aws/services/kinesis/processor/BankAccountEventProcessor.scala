@@ -44,8 +44,12 @@ class BankAccountEventProcessor(bankAccountTable: BankAccountTable) extends Shar
       case CreateBankAccountEvent(_, accountNumber, accountOwner, accountType, securityCode, balance) =>
         val newBankAccount = BankAccount(accountNumber, accountOwner, accountType, securityCode, balance)
         logger.info(s"Creating a new $accountType bank account for $accountOwner")
-
-      // ToDO - add the newly created bank account record in db
+        bankAccountTable.put(newBankAccount.record) match {
+          case Right(_) =>
+            logger.info("Bank account created successfully")
+          case Left(errorMsg) =>
+            logger.error(s"Failed to create bank account $accountNumber, reason: $errorMsg")
+        }
       case UpdateBankAccountEvent(_, accountNumber, updateType, amount) =>
         updateType match {
           case "credit" =>
