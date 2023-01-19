@@ -15,7 +15,6 @@ object Dependencies {
     val AkkaVersion = "2.7.0"
     val AkkaHttpVersion = "10.4.0"
     val AkkaHttpCorsVersion = "1.1.3"
-    val LogbackVersion = "1.2.9"
 
     // Example Specific
     val DynamoDbVersion = "1.0"
@@ -28,6 +27,7 @@ object Dependencies {
 
     // Logging
     val ScalaLoggingVersion = "3.9.5"
+    val Slf4jVersion = "1.7.25"
 
     // Test
     val ScalaTestVersion = "3.2.14"
@@ -39,11 +39,12 @@ object Dependencies {
     val ScalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % ScalaLoggingVersion
     val AkkaActor = "com.typesafe.akka" %% "akka-actor" % AkkaVersion
     val AkkaStream = "com.typesafe.akka" %% "akka-stream" % AkkaVersion
+    val Slf4j = "org.slf4j" % "slf4j-simple" % Slf4jVersion
+    lazy val macWire = "com.softwaremill.macwire" %% "macros" % "2.5.7"
     val AkkaHttp = "com.typesafe.akka" %% "akka-http" % AkkaHttpVersion
     val AkkaHttpSpray = "com.typesafe.akka" %% "akka-http-spray-json" % AkkaHttpVersion
     val AkkaHttpCors =  "ch.megard" %% "akka-http-cors" % AkkaHttpCorsVersion
     val AkkaHttpTestKit = "com.typesafe.akka" % "akka-http-testkit_2.13" % AkkaHttpVersion
-    val Logback = "ch.qos.logback" % "logback-classic" % LogbackVersion
 
     val KnoldusAwsDynamoDb = "knoldus" % "dynamodb-service_2.13" % DynamoDbVersion
     val KnoldusAwsKinesis = "knoldus" % "kinesis-service_2.13" % KinesisVersion
@@ -56,6 +57,7 @@ object Dependencies {
     val All: Seq[ModuleID] = Seq(
       ScalaLogging,
       PlayJson,
+      macWire,
       AkkaActor,
       AkkaStream,
       AkkaHttp,
@@ -63,8 +65,8 @@ object Dependencies {
       AkkaHttpCors,
       AkkaHttpTestKit,
       KnoldusAws,
-      Logback,
-      awsKCL
+      awsKCL,
+      Slf4j
     )
   }
 
