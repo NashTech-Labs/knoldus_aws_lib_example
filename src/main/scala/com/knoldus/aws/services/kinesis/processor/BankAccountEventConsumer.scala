@@ -1,6 +1,8 @@
 package com.knoldus.aws.services.kinesis.processor
 
 import com.knoldus.aws.models.kinesis.BankAccountTable
+import com.knoldus.aws.utils.Constants
+import com.knoldus.aws.utils.Constants.TWENTY
 import com.typesafe.scalalogging.LazyLogging
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient
@@ -51,7 +53,6 @@ class BankAccountEventConsumer(
     schedulerThread.setDaemon(true)
     schedulerThread.start()
 
-    println("Press enter to shutdown the scheduler")
     val reader = new BufferedReader(new InputStreamReader(System.in))
 
     try reader.readLine
@@ -62,7 +63,7 @@ class BankAccountEventConsumer(
 
     val gracefulShutdownFuture = scheduler.startGracefulShutdown
     logger.info("Waiting up to 20 seconds for shutdown to complete.")
-    try gracefulShutdownFuture.get(20, TimeUnit.SECONDS)
+    try gracefulShutdownFuture.get(TWENTY, TimeUnit.SECONDS)
     catch {
       case e: InterruptedException =>
         logger.info("Interrupted while waiting for graceful shutdown. Continuing.")

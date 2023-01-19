@@ -10,6 +10,8 @@ object Constants {
   val questionDeletedResponse = """{"message": "Question deleted successfully"}"""
   val questionNotDeletedResponse = """{"message": "Failure occurred deleting the question"}"""
 
+  val TWENTY = 20
+
   final val ZERO = 0
   final val TEN = 10
 
