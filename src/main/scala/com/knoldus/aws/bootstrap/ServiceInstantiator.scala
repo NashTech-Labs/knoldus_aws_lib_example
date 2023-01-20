@@ -1,8 +1,9 @@
 package com.knoldus.aws.bootstrap
 
 import com.knoldus.aws.models.dynamodb.QuestionTable
-import com.knoldus.aws.routes.s3.{ DataMigrationAPIImpl, S3BucketAPIImpl }
 import com.knoldus.aws.services.dynamodb.QuestionServiceImpl
+import com.knoldus.aws.services.kinesis.writer.{ BankAccountEventGenerator, BankAccountEventPublisher }
+import com.knoldus.aws.routes.s3.{ DataMigrationAPIImpl, S3BucketAPIImpl }
 import com.knoldus.aws.services.s3.{ DataMigrationServiceImpl, S3BucketServiceImpl }
 import com.knoldus.aws.services.sqs.MessagingServiceImpl
 import com.knoldus.common.models.AWSConfig
@@ -17,6 +18,8 @@ class ServiceInstantiator(conf: Config) {
 
   lazy val questionService = new QuestionServiceImpl(questionTable)
 
+  private lazy val bankAccountEventPublisher = new BankAccountEventPublisher(conf)
+  lazy val bankAccountEventGeneratorService = new BankAccountEventGenerator(bankAccountEventPublisher)
   private val accessKey: String = conf.getString("aws-access-key")
   private val secretKey: String = conf.getString("aws-secret-key")
   private val region: String = conf.getString("aws-region")
