@@ -41,11 +41,12 @@ class QuestionServiceImpl(questionTable: QuestionTable) extends QuestionService 
       }
     }
 
-  override def getLatestQuestions(count: Int): Future[Seq[Question]] = Future {
-    val records = questionTable.retrieveLatestRecords(count)
-    val questions = records.flatMap(Question(_))
-    questions
-  }
+  override def getLatestQuestions(count: Int): Future[Seq[Question]] =
+    Future {
+      val records = questionTable.retrieveLatestRecords(count)
+      val questions = records.flatMap(Question(_))
+      questions
+    }
 
   override def updateQuestion(id: String, category: String, questionUpdate: QuestionUpdate): Future[String] =
     Future {
