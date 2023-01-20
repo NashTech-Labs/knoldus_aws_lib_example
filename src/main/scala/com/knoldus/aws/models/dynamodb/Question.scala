@@ -1,6 +1,6 @@
 package com.knoldus.aws.models.dynamodb
 
-import com.knoldus.dynamodb.models.DynamoItem
+import com.knoldus.dynamodb.models.{ DynamoItem, DynamoRecord }
 import play.api.libs.json.{ Format, JsSuccess, JsValue, Json }
 
 import java.time.Instant
@@ -17,6 +17,9 @@ case class Question(id: String, title: String, category: String, description: St
 
 object Question {
   implicit val format: Format[Question] = Json.format
+
+  def apply(record: DynamoRecord): Option[Question] =
+    Question(Json.parse(record.json)).toOption
 
   def apply(json: JsValue): Either[String, Question] =
     json.validate[Question] match {
