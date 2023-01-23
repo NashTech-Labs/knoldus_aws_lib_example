@@ -1,6 +1,6 @@
 package com.knoldus.aws.models.kinesis
 
-import com.knoldus.dynamodb.models.DynamoItem
+import com.knoldus.dynamodb.models.{ DynamoItem, DynamoRecord }
 import play.api.libs.json.{ Format, JsSuccess, JsValue, Json }
 
 import java.time.Instant
@@ -24,6 +24,9 @@ case class BankAccount(
 
 object BankAccount {
   implicit val format: Format[BankAccount] = Json.format
+
+  def apply(record: DynamoRecord): Option[BankAccount] =
+    BankAccount(Json.parse(record.json)).toOption
 
   def apply(json: JsValue): Either[String, BankAccount] =
     json.validate[BankAccount] match {

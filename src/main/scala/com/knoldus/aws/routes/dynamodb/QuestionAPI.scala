@@ -7,7 +7,7 @@ trait QuestionAPI {
 
   def getQuestion: Route
 
-  def getLatestQuestions: Route
+  def getQuestions: Route
 
   def updateQuestion(): Route
 

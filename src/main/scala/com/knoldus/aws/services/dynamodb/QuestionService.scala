@@ -9,7 +9,7 @@ trait QuestionService {
 
   def getQuestion(id: String, category: String): Future[Option[Question]]
 
-  def getLatestQuestions(count: Int): Future[Seq[Question]]
+  def getQuestions(count: Int): Future[Seq[Question]]
 
   def updateQuestion(id: String, category: String, update: QuestionUpdate): Future[String]
 
