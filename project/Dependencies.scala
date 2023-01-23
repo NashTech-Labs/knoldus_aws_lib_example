@@ -17,11 +17,11 @@ object Dependencies {
     val AkkaHttpCorsVersion = "1.1.3"
 
     // Example Specific
-    val DynamoDbVersion = "1.0"
-    val KinesisVersion = "1.0"
-    val s3Version = "1.0"
-    val sqsVersion = "1.0"
-    val KnoldusAwsVersion = "1.0"
+    val DynamoDbVersion = "0.1"
+    val KinesisVersion = "0.1"
+    val s3Version = "0.1"
+    val sqsVersion = "0.1"
+    val KnoldusAwsVersion = "0.1"
 
     val kclVersion = "2.3.0"
 
