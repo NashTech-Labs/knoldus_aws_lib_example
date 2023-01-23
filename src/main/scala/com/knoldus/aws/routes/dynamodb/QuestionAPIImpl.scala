@@ -41,11 +41,11 @@ class QuestionAPIImpl(questionService: QuestionService) extends QuestionAPI with
     }
 
   override def getQuestions: Route =
-    path("questions" / IntNumber) { latestQuestionCount =>
+    path("questions" / IntNumber) { count =>
       pathEnd {
         get {
-          logger.info(s"Making request for getting the latest questions")
-          val response = questionService.getQuestions(latestQuestionCount)
+          logger.info(s"Making request for getting the questions")
+          val response = questionService.getQuestions(count)
           complete(response)
         }
       }
