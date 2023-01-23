@@ -1,9 +1,11 @@
 package com.knoldus.aws.bootstrap
 
 import com.knoldus.aws.models.dynamodb.QuestionTable
+import com.knoldus.aws.models.kinesis.BankAccountTable
 import com.knoldus.aws.services.dynamodb.QuestionServiceImpl
 import com.knoldus.aws.services.kinesis.writer.{ BankAccountEventGenerator, BankAccountEventPublisher }
 import com.knoldus.aws.routes.s3.{ DataMigrationAPIImpl, S3BucketAPIImpl }
+import com.knoldus.aws.services.kinesis.BankAccountService
 import com.knoldus.aws.services.s3.{ DataMigrationServiceImpl, S3BucketServiceImpl }
 import com.knoldus.aws.services.sqs.MessagingServiceImpl
 import com.knoldus.common.models.AWSConfig
@@ -13,13 +15,19 @@ import com.softwaremill.macwire.wire
 import com.typesafe.config.Config
 
 class ServiceInstantiator(conf: Config) {
-  private val tableName = conf.getString("dynamodb-table-name")
-  val questionTable: QuestionTable = QuestionTable(tableName)
+  private val questionTableName = conf.getString("dynamodb-table-name")
+  val questionTable: QuestionTable = QuestionTable(questionTableName)
 
   lazy val questionService = new QuestionServiceImpl(questionTable)
 
   private lazy val bankAccountEventPublisher = new BankAccountEventPublisher(conf)
   lazy val bankAccountEventGeneratorService = new BankAccountEventGenerator(bankAccountEventPublisher)
+
+  private val bankAccountTableName = conf.getString("bank-account-table-name")
+  val bankAccountTable: BankAccountTable = BankAccountTable(bankAccountTableName)
+
+  lazy val bankAccountService = new BankAccountService(bankAccountTable)
+
   private val accessKey: String = conf.getString("aws-access-key")
   private val secretKey: String = conf.getString("aws-secret-key")
   private val region: String = conf.getString("aws-region")
