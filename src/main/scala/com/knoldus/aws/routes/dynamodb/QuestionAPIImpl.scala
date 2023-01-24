@@ -9,7 +9,7 @@ import com.knoldus.aws.utils.{ Constants, JsonSupport }
 import com.typesafe.scalalogging.LazyLogging
 
 class QuestionAPIImpl(questionService: QuestionService) extends QuestionAPI with LazyLogging with JsonSupport {
-  val routes: Route = submitQuestion ~ getQuestion ~ updateQuestion() ~ deleteQuestion()
+  val routes: Route = submitQuestion ~ getQuestion ~ updateQuestion() ~ deleteQuestion() ~ getQuestions
 
   val noSuchElementExceptionHandler: ExceptionHandler = ExceptionHandler {
     case e: NoSuchElementException =>
@@ -36,6 +36,17 @@ class QuestionAPIImpl(questionService: QuestionService) extends QuestionAPI with
             val response = questionService.getQuestion(questionId, category)
             complete(response)
           }
+        }
+      }
+    }
+
+  override def getQuestions: Route =
+    path("questions" / IntNumber) { count =>
+      pathEnd {
+        get {
+          logger.info(s"Making request for getting the questions")
+          val response = questionService.getQuestions(count)
+          complete(response)
         }
       }
     }

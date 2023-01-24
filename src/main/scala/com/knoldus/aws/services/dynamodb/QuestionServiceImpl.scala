@@ -41,6 +41,14 @@ class QuestionServiceImpl(questionTable: QuestionTable) extends QuestionService 
       }
     }
 
+  override def getQuestions(count: Int): Future[Seq[Question]] =
+    Future {
+      logger.info("Getting latest records from question table")
+      val records = questionTable.retrieveLatestRecords(count)
+      val questions = records.flatMap(Question(_))
+      questions
+    }
+
   override def updateQuestion(id: String, category: String, questionUpdate: QuestionUpdate): Future[String] =
     Future {
       def updateQuestionEntity(): Question = {
@@ -48,6 +56,7 @@ class QuestionServiceImpl(questionTable: QuestionTable) extends QuestionService 
         val updatedDescription = questionUpdate.description
         Question(id, updatedTitle, category, updatedDescription)
       }
+
       logger.info(s"Updating the question with id: $id and category: $category")
       questionTable.update(category, id, updateQuestionEntity().record) match {
         case Right(_) =>
