@@ -1,4 +1,4 @@
-# Knoldus AWS Library Example Application
+# Knoldus AWS Library Example Application ( base lib at https://github.com/knoldus/knoldus_aws_lib)
 
 ## How to run on local?
 1. Create a new `.env-knoldus-aws-sample-app` file
