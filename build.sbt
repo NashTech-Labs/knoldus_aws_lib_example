@@ -10,7 +10,7 @@ Compile / mainClass := Some("com.knoldus.aws.bootstrap.DriverApp")
 Docker / packageName := "knoldus/aws-lib-examples"
 dockerExposedPorts ++= Seq(8000)
 
-resolvers += "GitHub Packages" at "https://maven.pkg.github.com/knoldus/knoldus-aws-lib"
+resolvers += "google-artifact-registry" at "https://asia-maven.pkg.dev/sonarqube-289802/knoldus-aws-lib/"
 
 lazy val KnoldusAwsLibSamples = Project("knoldus-aws-lib-examples", file("."))
   .settings(
