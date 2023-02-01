@@ -3,6 +3,7 @@ package com.knoldus.aws.bootstrap
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.RouteConcatenation._
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives.cors
+import ch.megard.akka.http.cors.scaladsl.model.HttpOriginMatcher
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings
 import com.knoldus.aws.routes.dynamodb.QuestionAPIImpl
 import com.knoldus.aws.routes.kinesis.{ BankAccountEventGeneratorRoutes, BankAccountRoutes }
@@ -29,7 +30,7 @@ class RoutesInstantiator(
   private val messagingAPIImplRoutes: MessagingAPIImpl =
     new MessagingAPIImpl(services.messagingService)
 
-  val routes: Route = cors(CorsSettings.defaultSettings) {
+  val routes: Route = cors(CorsSettings.defaultSettings.withAllowedOrigins(HttpOriginMatcher.*)) {
     concat(
       questionAPIRoutes.routes,
       bankAccountEventRoutes.routes,
